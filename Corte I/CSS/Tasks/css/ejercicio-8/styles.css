@@ -1,0 +1,24 @@
+.contenedor {
+    width: 800px;       /* ancho fijo para escritorio */
+    margin: 0 auto;
+    font-family: Arial, sans-serif;
+}
+
+.encabezado {
+    background-color: #264653;
+    color: white;
+    padding: 15px;
+    text-align: center;
+}
+
+.contenido {
+    background-color: #f1faee;
+    padding: 20px;
+}
+
+/* Media query: adapta el ancho en pantallas de hasta 768px (móviles/tablets) */
+@media (max-width: 768px) {
+    .contenedor {
+        width: 100%;
+    }
+}

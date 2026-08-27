@@ -1,0 +1,26 @@
+body {
+    font-family: 'Georgia', serif;
+}
+
+h1 {
+    font-size: 34px;
+    font-weight: bold;
+    text-align: center;
+    text-transform: uppercase;
+}
+
+h2 {
+    font-size: 20px;
+    font-weight: normal;
+    text-align: center;
+    font-style: italic;
+}
+
+p {
+    font-size: 17px;
+    text-align: justify;
+}
+
+.primer-parrafo {
+    font-weight: bold;
+}

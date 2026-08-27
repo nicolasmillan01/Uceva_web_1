@@ -1,0 +1,28 @@
+.block {
+    display: block;
+    background-color: #a8dadc;
+    margin-bottom: 5px;
+    padding: 5px;
+}
+
+.inline {
+    display: inline;
+    background-color: #f4a261;
+    padding: 5px;
+    margin-right: 5px;
+}
+
+.inline-block {
+    display: inline-block;
+    background-color: #e76f51;
+    width: 60px;
+    height: 60px;
+    text-align: center;
+    line-height: 60px;
+    color: white;
+    margin-right: 5px;
+}
+
+.oculto {
+    display: none;
+}

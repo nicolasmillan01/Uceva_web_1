@@ -1,0 +1,30 @@
+/* Fondo general de la página */
+body {
+    background-color: #f2f2f2;
+    font-family: Arial, sans-serif;
+}
+
+/* Estilo común de las cajas: ancho y alto */
+.caja {
+    width: 200px;
+    height: 100px;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 15px;
+    font-size: 18px;
+}
+
+/* Color diferente para cada caja */
+.caja-1 {
+    background-color: #e63946;
+}
+
+.caja-2 {
+    background-color: #2a9d8f;
+}
+
+.caja-3 {
+    background-color: #457b9d;
+}

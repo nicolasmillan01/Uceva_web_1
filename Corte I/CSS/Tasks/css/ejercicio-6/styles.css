@@ -1,0 +1,24 @@
+.menu {
+    background-color: #264653;
+}
+
+.menu ul {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 30px;
+    list-style: none;
+    margin: 0;
+    padding: 15px 0;
+}
+
+.menu a {
+    color: white;
+    text-decoration: none;
+    font-family: Arial, sans-serif;
+    font-weight: bold;
+}
+
+.menu a:hover {
+    color: #e9c46a;
+}

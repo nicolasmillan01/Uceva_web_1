@@ -1,0 +1,43 @@
+body {
+    font-family: Arial, sans-serif;
+}
+
+.menu {
+    list-style: none;
+    display: flex;
+    gap: 20px;
+    padding: 0;
+}
+
+.menu a {
+    text-decoration: none;
+    color: #264653;
+}
+
+/* Cambia de estilo cuando el mouse pasa por encima */
+.menu a:hover {
+    color: #e76f51;
+    text-decoration: underline;
+}
+
+/* Resalta el campo cuando el usuario hace clic o navega con Tab */
+input:focus {
+    border: 2px solid #2a9d8f;
+    outline: none;
+    background-color: #f1faee;
+}
+
+.lista li {
+    padding: 5px;
+}
+
+/* Estilo diferente para el primer elemento de la lista */
+.lista li:first-child {
+    font-weight: bold;
+    color: #e63946;
+}
+
+/* Estilo diferente para elementos pares de la lista */
+.lista li:nth-child(even) {
+    background-color: #f2f2f2;
+}

@@ -1,0 +1,328 @@
+/* =========================================================
+   Ancestral Cocktails — Sistema de diseño
+   Paleta: verde bosque profundo, latón/oro, vino, crema
+   Tipografía: Fraunces (display) + Work Sans (cuerpo) + JetBrains Mono (utilitaria)
+   ========================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,500;0,9..144,600;1,9..144,500&family=Work+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  --ac-bg: #131d19;
+  --ac-bg-elev: #1c2b25;
+  --ac-bg-elev-2: #243830;
+  --ac-gold: #c9a227;
+  --ac-gold-soft: #e3c25c;
+  --ac-wine: #7a2333;
+  --ac-wine-soft: #9c3247;
+  --ac-cream: #ece3d0;
+  --ac-cream-dim: #b9b0a0;
+  --ac-line: #3a4d44;
+
+  --font-display: "Fraunces", "Georgia", serif;
+  --font-body: "Work Sans", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+
+  /* Sobrescritura de variables de Pico para casar con la paleta */
+  --pico-font-family: var(--font-body);
+  --pico-background-color: var(--ac-bg);
+  --pico-color: var(--ac-cream);
+  --pico-primary: var(--ac-gold);
+  --pico-primary-hover: var(--ac-gold-soft);
+  --pico-primary-inverse: #1a140a;
+  --pico-h1-color: var(--ac-cream);
+  --pico-h2-color: var(--ac-cream);
+  --pico-muted-color: var(--ac-cream-dim);
+  --pico-card-background-color: var(--ac-bg-elev);
+  --pico-card-border-color: var(--ac-line);
+  --pico-border-radius: 2px;
+}
+
+body { background: var(--ac-bg); }
+
+h1, h2, h3, .display {
+  font-family: var(--font-display);
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+.eyebrow {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--ac-gold);
+}
+
+/* ---------- Encabezado ---------- */
+.site-header {
+  border-bottom: 1px solid var(--ac-line);
+  padding: 1.25rem 0;
+}
+.site-header nav .brand {
+  font-family: var(--font-display);
+  font-size: 1.4rem;
+  color: var(--ac-cream);
+  text-decoration: none;
+  letter-spacing: 0.03em;
+}
+.site-header nav ul li a {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--ac-cream-dim);
+}
+.site-header nav ul li a:hover,
+.site-header nav ul li a[aria-current="page"] {
+  color: var(--ac-gold);
+}
+
+/* ---------- Hero ---------- */
+.hero {
+  padding: 5rem 0 4rem;
+  text-align: center;
+  position: relative;
+}
+.hero h1 {
+  font-size: clamp(2.4rem, 5vw, 4rem);
+  max-width: 18ch;
+  margin: 0.75rem auto 1rem;
+}
+.hero p.lead {
+  max-width: 46ch;
+  margin: 0 auto 2rem;
+  color: var(--ac-cream-dim);
+  font-size: 1.05rem;
+}
+.botanical-divider {
+  width: 100%;
+  max-width: 220px;
+  margin: 2rem auto;
+  border: none;
+  border-top: 1px solid var(--ac-line);
+  position: relative;
+}
+.botanical-divider::after {
+  content: "❦";
+  position: absolute;
+  top: -0.8em;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--ac-bg);
+  padding: 0 0.75rem;
+  color: var(--ac-gold);
+}
+
+/* ---------- Etiquetas tipo botánico (pilares) ---------- */
+.pillars {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 1.5rem;
+  margin: 3rem 0;
+}
+.pillar-card {
+  border: 1px solid var(--ac-line);
+  background: var(--ac-bg-elev);
+  padding: 1.75rem 1.5rem;
+  text-align: center;
+}
+.pillar-card .num {
+  font-family: var(--font-mono);
+  color: var(--ac-gold);
+  font-size: 0.8rem;
+  letter-spacing: 0.15em;
+}
+.pillar-card h3 { margin: 0.6rem 0 0.5rem; font-size: 1.15rem; }
+.pillar-card p { color: var(--ac-cream-dim); font-size: 0.92rem; margin: 0; }
+
+/* ---------- Tarjetas de cóctel destacado ---------- */
+.featured-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1.5rem;
+}
+.drink-card {
+  background: var(--ac-bg-elev);
+  border: 1px solid var(--ac-line);
+  padding: 1.5rem;
+}
+.drink-card .drink-name {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  margin-bottom: 0.35rem;
+}
+.drink-card .drink-tags span {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--ac-gold);
+  border: 1px solid var(--ac-gold);
+  padding: 0.1rem 0.5rem;
+  margin-right: 0.35rem;
+  display: inline-block;
+  margin-top: 0.5rem;
+}
+
+/* ---------- Menú: filas tipo ticket con línea de puntos ---------- */
+.menu-section { margin-bottom: 3rem; }
+.menu-section > h2 {
+  font-size: 1rem;
+  font-family: var(--font-mono);
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ac-gold);
+  border-bottom: 1px solid var(--ac-line);
+  padding-bottom: 0.6rem;
+  margin-bottom: 1.25rem;
+}
+.menu-item {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  padding: 0.85rem 0;
+  border-bottom: 1px dotted var(--ac-line);
+}
+.menu-item:last-child { border-bottom: none; }
+.menu-item .menu-item-name {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  color: var(--ac-cream);
+  white-space: nowrap;
+}
+.menu-item .menu-item-leader {
+  flex: 1;
+  border-bottom: 1px dotted var(--ac-line);
+  transform: translateY(-0.35em);
+}
+.menu-item .menu-item-price {
+  font-family: var(--font-mono);
+  color: var(--ac-gold-soft);
+  white-space: nowrap;
+}
+.menu-item-desc {
+  display: block;
+  width: 100%;
+  color: var(--ac-cream-dim);
+  font-size: 0.85rem;
+  margin-top: -0.4rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px dotted var(--ac-line);
+}
+.menu-item-desc:last-of-type { border-bottom: none; }
+
+/* ---------- Franja de cita / filosofía ---------- */
+.quote-strip {
+  background: var(--ac-wine);
+  padding: 3rem 0;
+  text-align: center;
+}
+.quote-strip blockquote {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1.4rem;
+  max-width: 40ch;
+  margin: 0 auto;
+  border: none;
+  color: var(--ac-cream);
+}
+.quote-strip cite {
+  display: block;
+  margin-top: 1rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
+  color: var(--ac-cream-dim);
+}
+
+/* ---------- Info / contacto ---------- */
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 2rem;
+  margin: 2.5rem 0;
+}
+.info-block h3 {
+  font-size: 0.95rem;
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--ac-gold);
+}
+.info-block p { color: var(--ac-cream-dim); margin: 0; }
+
+.map-frame {
+  border: 1px solid var(--ac-line);
+  aspect-ratio: 16/9;
+  overflow: hidden;
+}
+.map-frame iframe { width: 100%; height: 100%; border: 0; filter: grayscale(0.4) invert(0.92) contrast(0.9); }
+
+/* ---------- Equipo / historia ---------- */
+.story-layout {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3rem;
+  align-items: start;
+}
+@media (max-width: 768px) {
+  .story-layout { grid-template-columns: 1fr; }
+}
+.timeline {
+  list-style: none;
+  margin: 0; padding: 0;
+  border-left: 1px solid var(--ac-line);
+}
+.timeline li {
+  position: relative;
+  padding: 0 0 1.75rem 1.5rem;
+}
+.timeline li::before {
+  content: "";
+  position: absolute;
+  left: -5px; top: 0.3rem;
+  width: 9px; height: 9px;
+  background: var(--ac-gold);
+  border-radius: 50%;
+}
+.timeline .year {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--ac-gold);
+  display: block;
+}
+
+/* ---------- Formulario de reserva ---------- */
+.reserve-form fieldset { border: none; padding: 0; }
+.reserve-form label { color: var(--ac-cream-dim); font-family: var(--font-mono); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; }
+.reserve-form input,
+.reserve-form select,
+.reserve-form textarea {
+  background: var(--ac-bg-elev);
+  border-color: var(--ac-line);
+  color: var(--ac-cream);
+}
+.reserve-form button { background: var(--ac-gold); color: #1a140a; border: none; }
+.reserve-form button:hover { background: var(--ac-gold-soft); }
+
+/* ---------- Pie de página ---------- */
+.site-footer {
+  border-top: 1px solid var(--ac-line);
+  padding: 2.5rem 0;
+  color: var(--ac-cream-dim);
+  font-size: 0.85rem;
+}
+.site-footer .footer-grid {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+.site-footer a { color: var(--ac-cream-dim); }
+.site-footer a:hover { color: var(--ac-gold); }
+
+@media (prefers-reduced-motion: no-preference) {
+  .fade-in { animation: fadeIn 0.6s ease-out both; }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+}

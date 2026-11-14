@@ -15,6 +15,7 @@ import { ClientCreateReservationPage } from './pages/client-create-reservation/c
 import { AgentEventsPage } from './pages/agent-events/agent-events.page';
 import { AgentReservationsPage } from './pages/agent-reservations/agent-reservations.page';
 import { AgentCreateEventPage } from './pages/agent-create-event/agent-create-event.page';
+import { AgentReportsPage } from './pages/agent-reports/agent-reports.page';
 
 export const routes: Routes = [
 
@@ -58,6 +59,10 @@ export const routes: Routes = [
     path: 'agent',
     component: AgentPage,
     children: [
+      {
+  path: 'reports',
+  component: AgentReportsPage
+},
       {
         path: 'events',
         component: AgentEventsPage

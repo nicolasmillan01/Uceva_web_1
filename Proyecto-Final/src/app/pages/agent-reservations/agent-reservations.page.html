@@ -1,239 +1,243 @@
 
 <main class="reservations-page">
+
   <div class="page-header">
     <div>
-      <span class="page-header__eyebrow">GESTIÓN DE EVENTOS</span>
+      <span class="page-header__eyebrow">
+        GESTIÓN DE EVENTOS
+      </span>
+
       <h1>Reservas del evento</h1>
-      <p>Consulta la información del evento y administra sus reservas.</p>
+
+      <p>
+        Consulta la información del evento y administra sus reservas.
+      </p>
     </div>
 
-    <a href="/agent/events" class="btn btn-outline-secondary">
+    <a routerLink="/agent/events"
+       class="btn btn-outline-secondary">
       <i class="bi bi-arrow-left"></i>
       Volver a mis eventos
     </a>
   </div>
 
-  <!-- Detalle del evento -->
-  <section class="event-detail">
-    <div class="event-detail__header">
-      <div class="event-detail__title">
-        <div class="event-detail__icon">
+  <!-- Cargando -->
+  <div *ngIf="cargando" class="alert alert-info">
+    Consultando información del evento...
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="!cargando && error"
+       class="alert alert-danger"
+       role="alert">
+    {{ error }}
+  </div>
+
+  <ng-container *ngIf="!cargando && !error && evento as evento">
+
+    <!-- Detalle del evento -->
+    <section class="event-detail">
+
+      <div class="event-detail__header">
+
+        <div class="event-detail__title">
+
+          <div class="event-detail__icon">
+            <i class="bi bi-ticket-perforated"></i>
+          </div>
+
+          <div>
+            <span class="section-label">
+              DETALLE DEL EVENTO
+            </span>
+
+            <h2>{{ evento.nombre }}</h2>
+
+            <p>{{ evento.descripcion }}</p>
+          </div>
+        </div>
+
+        <span
+          class="status-badge"
+          [ngClass]="claseEstadoEvento(evento.estado)">
+          {{ evento.estado }}
+        </span>
+      </div>
+
+      <div class="event-detail__content">
+
+        <div class="event-detail__item">
+          <span class="detail-label">
+            <i class="bi bi-geo-alt"></i>
+            Lugar
+          </span>
+
+          <strong>{{ evento.teatro }}</strong>
+        </div>
+
+        <div class="event-detail__item">
+          <span class="detail-label">
+            <i class="bi bi-building"></i>
+            Ciudad
+          </span>
+
+          <strong>{{ evento.ciudad }}</strong>
+        </div>
+
+        <div class="event-detail__item">
+          <span class="detail-label">
+            <i class="bi bi-calendar-event"></i>
+            Fecha de inicio
+          </span>
+
+          <strong>
+            {{ evento.fecha_inicio | date:'dd/MM/yyyy - h:mm a':'':'es-CO' }}
+          </strong>
+        </div>
+
+        <div class="event-detail__item">
+          <span class="detail-label">
+            <i class="bi bi-calendar-check"></i>
+            Fecha de finalización
+          </span>
+
+          <strong>
+            {{ evento.fecha_fin | date:'dd/MM/yyyy - h:mm a':'':'es-CO' }}
+          </strong>
+        </div>
+
+        <div class="event-detail__item">
+          <span class="detail-label">
+            <i class="bi bi-cash"></i>
+            Precio por entrada
+          </span>
+
+          <strong>
+            $ {{ evento.precio | number:'1.0-0':'es-CO' }} COP
+          </strong>
+        </div>
+
+        <div class="event-detail__item">
+          <span class="detail-label">
+            <i class="bi bi-people"></i>
+            Capacidad
+          </span>
+
+          <strong>{{ evento.capacidad }} personas</strong>
+        </div>
+
+      </div>
+
+      <div class="event-detail__description">
+        <span class="detail-label">Descripción</span>
+
+        <p>{{ evento.descripcion }}</p>
+
+        <p *ngIf="evento.observaciones">
+          <strong>Observaciones:</strong>
+          {{ evento.observaciones }}
+        </p>
+      </div>
+
+    </section>
+
+    <!-- Resumen de reservas -->
+    <section class="reservation-summary">
+
+      <div class="summary-card">
+        <div class="summary-card__icon summary-card__icon--blue">
+          <i class="bi bi-receipt"></i>
+        </div>
+
+        <div>
+          <span>Total de reservas</span>
+          <strong>—</strong>
+        </div>
+      </div>
+
+      <div class="summary-card">
+        <div class="summary-card__icon summary-card__icon--green">
           <i class="bi bi-ticket-perforated"></i>
         </div>
 
         <div>
-          <span class="section-label">DETALLE DEL EVENTO</span>
-          <h2>Festival de música</h2>
-          <p>Una experiencia musical para disfrutar en vivo.</p>
+          <span>Entradas reservadas</span>
+          <strong>—</strong>
         </div>
       </div>
 
-      <span class="status-badge status-badge--programado">
-        Programado
-      </span>
-    </div>
+      <div class="summary-card">
+        <div class="summary-card__icon summary-card__icon--purple">
+          <i class="bi bi-currency-dollar"></i>
+        </div>
 
-    <div class="event-detail__content">
-      <div class="event-detail__item">
-        <span class="detail-label">
-          <i class="bi bi-geo-alt"></i>
-          Lugar
+        <div>
+          <span>Valor de reservas</span>
+          <strong>—</strong>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- Tabla de reservas -->
+    <section class="reservations-section">
+
+      <div class="section-header">
+        <div>
+          <h2>Reservas registradas</h2>
+
+          <p>
+            Consulta el estado y la información de cada reserva.
+          </p>
+        </div>
+
+        <span class="reservations-count">
+          Pendiente de consulta
         </span>
-        <strong>Teatro Municipal</strong>
       </div>
 
-      <div class="event-detail__item">
-        <span class="detail-label">
-          <i class="bi bi-building"></i>
-          Ciudad
+      <div *ngIf="!reservasDisponibles"
+           class="alert alert-warning m-3"
+           role="status">
+
+        La consulta de reservas de este evento todavía
+        no está disponible.
+
+        Es necesario integrar el backend de reservas
+        y los permisos de acceso del agente.
+      </div>
+
+      <div class="table-responsive">
+        <table class="table reservations-table">
+
+          <thead>
+            <tr>
+              <th>Código</th>
+              <th>Fecha de reserva</th>
+              <th>Entradas</th>
+              <th>Valor total</th>
+              <th>Estado</th>
+              <th>Observaciones</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <!-- Las filas se cargarán desde la API
+                 cuando exista el endpoint autorizado. -->
+          </tbody>
+
+        </table>
+      </div>
+
+      <div class="table-footer">
+        <span>
+          Información de reservas pendiente de integración
         </span>
-        <strong>Tuluá</strong>
       </div>
 
-      <div class="event-detail__item">
-        <span class="detail-label">
-          <i class="bi bi-calendar-event"></i>
-          Fecha de inicio
-        </span>
-        <strong>15/11/2026 - 6:00 p. m.</strong>
-      </div>
+    </section>
 
-      <div class="event-detail__item">
-        <span class="detail-label">
-          <i class="bi bi-calendar-check"></i>
-          Fecha de finalización
-        </span>
-        <strong>15/11/2026 - 11:00 p. m.</strong>
-      </div>
+  </ng-container>
 
-      <div class="event-detail__item">
-        <span class="detail-label">
-          <i class="bi bi-cash"></i>
-          Precio por entrada
-        </span>
-        <strong>$80.000</strong>
-      </div>
-
-      <div class="event-detail__item">
-        <span class="detail-label">
-          <i class="bi bi-people"></i>
-          Capacidad
-        </span>
-        <strong>500 personas</strong>
-      </div>
-    </div>
-
-    <div class="event-detail__description">
-      <span class="detail-label">Descripción</span>
-      <p>
-        Festival con presentaciones musicales en vivo, artistas invitados
-        y diferentes propuestas para los amantes de la música.
-      </p>
-    </div>
-  </section>
-
-  <!-- Resumen de reservas -->
-  <section class="reservation-summary">
-    <div class="summary-card">
-      <div class="summary-card__icon summary-card__icon--blue">
-        <i class="bi bi-receipt"></i>
-      </div>
-      <div>
-        <span>Total de reservas</span>
-        <strong>3</strong>
-      </div>
-    </div>
-
-    <div class="summary-card">
-      <div class="summary-card__icon summary-card__icon--green">
-        <i class="bi bi-ticket-perforated"></i>
-      </div>
-      <div>
-        <span>Entradas reservadas</span>
-        <strong>8</strong>
-      </div>
-    </div>
-
-    <div class="summary-card">
-      <div class="summary-card__icon summary-card__icon--purple">
-        <i class="bi bi-currency-dollar"></i>
-      </div>
-      <div>
-        <span>Valor de reservas</span>
-        <strong>$640.000</strong>
-      </div>
-    </div>
-  </section>
-
-  <!-- Tabla de reservas -->
-  <section class="reservations-section">
-    <div class="section-header">
-      <div>
-        <h2>Reservas registradas</h2>
-        <p>Consulta el estado y la información de cada reserva.</p>
-      </div>
-
-      <span class="reservations-count">3 reservas</span>
-    </div>
-
-    <div class="table-responsive">
-      <table class="table reservations-table">
-        <thead>
-          <tr>
-            <th>Código</th>
-            <th>Fecha de reserva</th>
-            <th>Entradas</th>
-            <th>Valor total</th>
-            <th>Estado</th>
-            <th>Observaciones</th>
-            <th>Acciones</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          <tr>
-            <td>
-              <span class="reservation-code">#RES-001</span>
-            </td>
-            <td>01/10/2026</td>
-            <td>3</td>
-            <td class="reservation-total">$240.000</td>
-            <td>
-              <span class="status-badge status-badge--confirmed">
-                <i class="bi bi-check-circle"></i>
-                Confirmada
-              </span>
-            </td>
-            <td>Sin observaciones</td>
-            <td>
-              <a
-                href="/agent/reservations/edit/1"
-                class="btn btn-edit"
-                aria-label="Editar reserva RES-001"
-              >
-                <i class="bi bi-pencil-square"></i>
-                Editar
-              </a>
-            </td>
-          </tr>
-
-          <tr>
-            <td>
-              <span class="reservation-code">#RES-002</span>
-            </td>
-            <td>02/10/2026</td>
-            <td>2</td>
-            <td class="reservation-total">$160.000</td>
-            <td>
-              <span class="status-badge status-badge--reserved">
-                <i class="bi bi-clock"></i>
-                Reservada
-              </span>
-            </td>
-            <td>Solicita ubicación central</td>
-            <td>
-              <a
-                href="/agent/reservations/edit/2"
-                class="btn btn-edit"
-                aria-label="Editar reserva RES-002"
-              >
-                <i class="bi bi-pencil-square"></i>
-                Editar
-              </a>
-            </td>
-          </tr>
-
-          <tr>
-            <td>
-              <span class="reservation-code">#RES-003</span>
-            </td>
-            <td>03/10/2026</td>
-            <td>3</td>
-            <td class="reservation-total">$240.000</td>
-            <td>
-              <span class="status-badge status-badge--cancelled">
-                <i class="bi bi-x-circle"></i>
-                Cancelada
-              </span>
-            </td>
-            <td>Cancelación solicitada por el cliente</td>
-            <td>
-              <a
-                href="/agent/reservations/edit/3"
-                class="btn btn-edit"
-                aria-label="Editar reserva RES-003"
-              >
-                <i class="bi bi-pencil-square"></i>
-                Editar
-              </a>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
-    <div class="table-footer">
-      <span>Mostrando 3 reservas del evento</span>
-    </div>
-  </section>
 </main>

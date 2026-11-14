@@ -17,15 +17,16 @@ export class NavbarComponent {
 
   navbarConfig: NavbarConfig[] = [];
 
-  clientConfig: NavbarConfig[] = [
-    { url: '/client/events', label: 'Eventos', icon: 'calendar3' },
-    { url: '/client/reservations', label: 'Reservaciones', icon: 'calendar3' },
-  ]
+ clientConfig: NavbarConfig[] = [
+  { url: '/client/events', label: 'Eventos', icon: 'calendar-event' },
+  { url: '/client/reservations', label: 'Reservaciones', icon: 'ticket-perforated' },
+];
 
-  agentConfig: NavbarConfig[] = [
-    { url: '/agent/events', label: 'Eventos', icon: 'calendar3' },
-    { url: '/agent/create-event', label: 'Crear Evento', icon: 'calendar3' },
-  ]
+ agentConfig: NavbarConfig[] = [
+  { url: '/agent/events', label: 'Eventos', icon: 'calendar3' },
+  { url: '/agent/create-event', label: 'Crear Evento', icon: 'calendar-plus' },
+  { url: '/agent/reports', label: 'Reportes', icon: 'bar-chart-line' },
+];
 
   private router = inject(Router);
 

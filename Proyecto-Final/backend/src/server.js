@@ -1,0 +1,12 @@
+import express from 'express';
+import cors from 'cors';
+import './config/database.js';
+import eventRoutes from './routes/event.routes.js';
+const app = express();
+app.use(cors({origin:'http://localhost:4200'}));
+app.use(express.json({limit:'100kb'}));
+app.get('/api/health',(req,res)=>res.json({status:'ok'}));
+app.use('/api/events',eventRoutes);
+app.use((req,res)=>res.status(404).json({error:'Ruta no encontrada'}));
+app.use((err,req,res,next)=>{ console.error(err);res.status(err.status || (err instanceof SyntaxError ? 400 : 500)).json({error:err.status || err instanceof SyntaxError ? err.message : 'Error interno del servidor'}); });
+app.listen(3000,()=>console.log('API disponible en http://localhost:3000'));

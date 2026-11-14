@@ -1,0 +1,22 @@
+
+<section class="events-section container">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="events-section__title">Próximos eventos</h2>
+      <p class="text-secondary mb-0">
+        Descubre los eventos disponibles para ti
+      </p>
+    </div>
+  </div>
+
+  @if (loading) { <p>Cargando eventos...</p> }
+  @if (error) { <p class="alert alert-danger">{{ error }}</p> }
+  @if (!loading && !error && events.length === 0) { <p>No hay eventos registrados todavía.</p> }
+  <div class="row g-4">
+
+    @for(event of events; track event.codigo){
+      <app-event-card [event]="event" />
+    }
+
+  </div>
+</section>

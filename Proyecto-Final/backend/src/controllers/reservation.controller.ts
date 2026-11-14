@@ -156,27 +156,67 @@ private getId(value: string | string[] | undefined): number {
       const codigo = this.getId(req.params.id);
       const reserva = this.service.getById(codigo);
 
-      if (
-        usuario.rol !== 'administrador' &&
-        reserva.usuario_id !== usuario.id
-      ) {
+      const esAdministrador =
+        usuario.rol === 'administrador';
+
+      const esPropietario =
+        reserva.usuario_id === usuario.id;
+
+      if (!esAdministrador && !esPropietario) {
         throw Object.assign(
           new Error('Acceso denegado'),
           { status: 403 }
         );
       }
 
+      if (!esAdministrador) {
+        if (
+          usuario.rol !== 'cliente' ||
+          req.body?.estado !== 'Cancelada' ||
+          req.body?.cantidad !== reserva.cantidad
+        ) {
+          throw Object.assign(
+            new Error(
+              'El cliente solo puede cancelar su propia reserva'
+            ),
+            { status: 403 }
+          );
+        }
+
+        if (reserva.estado === 'Cancelada') {
+          throw Object.assign(
+            new Error('La reserva ya está cancelada'),
+            { status: 409 }
+          );
+        }
+
+        res.json(
+          this.service.update(
+            codigo,
+            reserva.cantidad,
+            'Cancelada'
+          )
+        );
+
+        return;
+      }
+
       const cantidad = Number(req.body?.cantidad);
       const estado = req.body?.estado;
 
       res.json(
-        this.service.update(codigo, cantidad, estado)
+        this.service.update(
+          codigo,
+          cantidad,
+          estado
+        )
       );
     } catch (error) {
       next(error);
     }
   };
 
+ 
   delete = (
     req: AuthenticatedRequest,
     res: Response,
@@ -185,21 +225,21 @@ private getId(value: string | string[] | undefined): number {
     try {
       const usuario = this.getUser(req);
       const codigo = this.getId(req.params.id);
-      const reserva = this.service.getById(codigo);
 
-      if (
-        usuario.rol !== 'administrador' &&
-        reserva.usuario_id !== usuario.id
-      ) {
+      if (usuario.rol !== 'administrador') {
         throw Object.assign(
-          new Error('Acceso denegado'),
+          new Error(
+            'Solo el administrador puede eliminar reservas'
+          ),
           { status: 403 }
         );
       }
 
       this.service.delete(codigo);
+
       res.status(204).send();
-    } catch (error) {
+
+        } catch (error) {
       next(error);
     }
   };

@@ -1,12 +1,10 @@
+
 <nav class="app-navbar">
 
   <!-- Parte 1: Marca -->
   <div class="navbar-brand-section">
 
-    <a
-      routerLink="/"
-      class="navbar-brand"
-    >
+    <a routerLink="/" class="navbar-brand">
       <div class="brand-icon">
         <i class="bi bi-calendar-event"></i>
       </div>
@@ -18,11 +16,10 @@
 
   </div>
 
-
   <!-- Parte 2: Navegación -->
   <div class="navbar-navigation">
 
-    @for(item of navbarConfig; track item.url){
+    @for (item of navbarConfig; track item.url) {
       <a
         [routerLink]="item.url"
         routerLinkActive="active"
@@ -33,9 +30,7 @@
       </a>
     }
 
-
   </div>
-
 
   <!-- Parte 3: Usuario -->
   <div class="navbar-user-section">
@@ -43,17 +38,19 @@
     <div class="user-info">
 
       <div class="user-avatar">
-        JD
+        {{ userInitials }}
       </div>
 
       <div class="user-data">
+
         <span class="user-name">
-          Juan David
+          {{ authService.currentUser()?.nombre || 'Usuario' }}
         </span>
 
         <span class="user-role">
-          Cliente
+          {{ authService.currentUser()?.rol || '' }}
         </span>
+
       </div>
 
     </div>
@@ -63,6 +60,7 @@
       <button
         type="button"
         class="logout-button"
+        (click)="logout()"
       >
         <i class="bi bi-box-arrow-right"></i>
 

@@ -1,4 +1,5 @@
 
+import 'dotenv/config';
 import express from 'express';
 import cors from 'cors';
 
@@ -9,6 +10,10 @@ import countryRoutes from './routes/country.routes.js';
 
 import departmentRoutes from './routes/department.routes.js';
 import cityRoutes from './routes/city.routes.js';
+
+import authRoutes from './routes/auth.routes.js';
+import userRoutes from './routes/user.routes.js';
+
 
 const app = express();
 
@@ -36,6 +41,12 @@ app.use('/api/departments', departmentRoutes);
 
 // RUtas de ciudades
 app.use('/api/cities', cityRoutes);
+
+// Rutas de autenticacion
+app.use('/api/auth', authRoutes);
+
+// Rutas de administración de usuarios
+app.use('/api/users', userRoutes);
 
 // Ruta no encontrada
 app.use((req, res) => {

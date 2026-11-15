@@ -2,27 +2,43 @@
 import { Router } from 'express';
 import { DepartmentController } from '../controllers/department.controller.js';
 
+import {
+  authenticate,
+  authorize
+} from '../middlewares/auth.middleware.js';
+
 const router = Router();
 
-// Consultar todos los departamentos
+// Consultas públicas
 router.get('/', DepartmentController.getAll);
 
-// Consultar departamentos de un país
 router.get(
   '/country/:countryId',
   DepartmentController.getByCountry
 );
 
-// Consultar un departamento por ID
 router.get('/:id', DepartmentController.getById);
 
-// Crear un departamento
-router.post('/', DepartmentController.create);
+// Operaciones exclusivas del administrador
+router.post(
+  '/',
+  authenticate,
+  authorize('administrador'),
+  DepartmentController.create
+);
 
-// Actualizar un departamento
-router.put('/:id', DepartmentController.update);
+router.put(
+  '/:id',
+  authenticate,
+  authorize('administrador'),
+  DepartmentController.update
+);
 
-// Eliminar un departamento
-router.delete('/:id', DepartmentController.delete);
+router.delete(
+  '/:id',
+  authenticate,
+  authorize('administrador'),
+  DepartmentController.delete
+);
 
 export default router;

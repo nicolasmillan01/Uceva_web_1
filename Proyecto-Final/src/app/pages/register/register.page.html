@@ -1,3 +1,4 @@
+
 <div class="auth-page">
   <div class="row g-0 min-vh-100">
 
@@ -27,14 +28,25 @@
           </p>
         </div>
 
-        <form>
+        <!-- Mensajes -->
+        @if (errorMessage()) {
+          <div class="alert alert-danger" role="alert">
+            {{ errorMessage() }}
+          </div>
+        }
+
+        @if (successMessage()) {
+          <div class="alert alert-success" role="status">
+            {{ successMessage() }}
+          </div>
+        }
+
+        <form #registerForm="ngForm"
+              (ngSubmit)="register()">
 
           <!-- Nombre completo -->
           <div class="mb-3">
-            <label
-              for="fullName"
-              class="form-label"
-            >
+            <label for="fullName" class="form-label">
               Nombre completo
             </label>
 
@@ -44,16 +56,14 @@
               name="fullName"
               class="form-control"
               placeholder="Ej. Juan Pérez"
+              [(ngModel)]="nombre"
               required
             >
           </div>
 
-          <!-- Email -->
+          <!-- Correo electrónico -->
           <div class="mb-3">
-            <label
-              for="email"
-              class="form-label"
-            >
+            <label for="email" class="form-label">
               Correo electrónico
             </label>
 
@@ -63,45 +73,68 @@
               name="email"
               class="form-control"
               placeholder="correo@ejemplo.com"
+              [(ngModel)]="email"
               required
+              email
             >
           </div>
 
-          <!-- Tipo de usuario -->
+          <!-- País -->
           <div class="mb-3">
-            <label
-              for="userType"
-              class="form-label"
-            >
-              Tipo de usuario
+            <label for="country" class="form-label">
+              País
             </label>
 
             <select
-              id="userType"
-              name="userType"
+              id="country"
+              name="country"
               class="form-select"
+              [(ngModel)]="country_id"
+              (ngModelChange)="onCountryChange()"
               required
             >
-              <option value="" selected disabled>
-                Selecciona un tipo de usuario
+              <option [ngValue]="null">
+                Selecciona tu país
               </option>
 
-              <option value="cliente">
-                Cliente
+              @for (country of countries; track country.id) {
+                <option [ngValue]="country.id">
+                  {{ country.nombre }}
+                </option>
+              }
+            </select>
+          </div>
+
+          <!-- Departamento -->
+          <div class="mb-3">
+            <label for="department" class="form-label">
+              Departamento
+            </label>
+
+            <select
+              id="department"
+              name="department"
+              class="form-select"
+              [(ngModel)]="department_id"
+              (ngModelChange)="onDepartmentChange()"
+              [disabled]="country_id === null"
+              required
+            >
+              <option [ngValue]="null">
+                Selecciona tu departamento
               </option>
 
-              <option value="agente">
-                Agente
-              </option>
+              @for (department of departments; track department.id) {
+                <option [ngValue]="department.id">
+                  {{ department.nombre }}
+                </option>
+              }
             </select>
           </div>
 
           <!-- Ciudad -->
           <div class="mb-3">
-            <label
-              for="city"
-              class="form-label"
-            >
+            <label for="city" class="form-label">
               Ciudad
             </label>
 
@@ -109,28 +142,25 @@
               id="city"
               name="city"
               class="form-select"
+              [(ngModel)]="city_id"
+              [disabled]="department_id === null"
               required
             >
-              <option value="" selected disabled>
+              <option [ngValue]="null">
                 Selecciona tu ciudad
               </option>
 
-              <option value="bogota">Bogotá</option>
-              <option value="medellin">Medellín</option>
-              <option value="cali">Cali</option>
-              <option value="tulua">Tuluá</option>
-              <option value="pereira">Pereira</option>
-              <option value="armenia">Armenia</option>
-              <option value="manizales">Manizales</option>
+              @for (city of cities; track city.id) {
+                <option [ngValue]="city.id">
+                  {{ city.nombre }}
+                </option>
+              }
             </select>
           </div>
 
-          <!-- Password -->
-          <div class="mb-4">
-            <label
-              for="password"
-              class="form-label"
-            >
+          <!-- Contraseña -->
+          <div class="mb-3">
+            <label for="password" class="form-label">
               Contraseña
             </label>
 
@@ -139,17 +169,42 @@
               id="password"
               name="password"
               class="form-control"
-              placeholder="Ingresa una contraseña"
+              placeholder="Mínimo 8 caracteres"
+              [(ngModel)]="password"
+              minlength="8"
+              maxlength="128"
               required
             >
           </div>
 
-          <!-- Botón -->
+          <!-- Confirmar contraseña -->
+          <div class="mb-4">
+            <label for="confirmPassword" class="form-label">
+              Confirmar contraseña
+            </label>
+
+            <input
+              type="password"
+              id="confirmPassword"
+              name="confirmPassword"
+              class="form-control"
+              placeholder="Repite tu contraseña"
+              [(ngModel)]="confirmPassword"
+              required
+            >
+          </div>
+
+          <!-- Registrar -->
           <button
             type="submit"
             class="btn btn-primary w-100"
+            [disabled]="loading() || registerForm.invalid"
           >
-            Registrar
+            @if (loading()) {
+              Registrando...
+            } @else {
+              Registrar
+            }
           </button>
 
         </form>
@@ -160,10 +215,7 @@
             ¿Ya tienes una cuenta?
           </span>
 
-          <a
-            routerLink="/login"
-            class="auth-link"
-          >
+          <a routerLink="/login" class="auth-link">
             Iniciar sesión
           </a>
         </div>

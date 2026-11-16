@@ -1,235 +1,240 @@
+
 <section class="events-content">
   <div class="events-panel">
+
+    <!-- ENCABEZADO -->
     <div class="events-panel__header">
       <div>
         <h2>Mis eventos</h2>
         <p>Consulta y administra los eventos que has creado.</p>
       </div>
 
-      <span class="events-count">3 eventos</span>
+      <span class="events-count">
+        {{ eventos.length }}
+        {{ eventos.length === 1 ? 'evento' : 'eventos' }}
+      </span>
     </div>
 
-    <div class="table-responsive">
-      <table class="table events-table align-middle mb-0">
-        <thead>
-          <tr>
-            <th scope="col">Evento</th>
-            <th scope="col">Lugar y ciudad</th>
-            <th scope="col">Fecha de inicio</th>
-            <th scope="col">Capacidad</th>
-            <th scope="col">Precio</th>
-            <th scope="col">Estado</th>
-            <th scope="col" class="text-end">Acciones</th>
-          </tr>
-        </thead>
+    <!-- MENSAJES DE ERROR -->
+    @if (error) {
+      <div class="alert alert-danger m-3" role="alert">
+        <i class="bi bi-exclamation-triangle me-2"></i>
+        {{ error }}
+      </div>
+    }
 
-        <tbody>
-          <tr>
-            <td>
-              <div class="event-info">
-                <div class="event-info__icon event-info__icon--music">
-                  <i class="bi bi-music-note-beamed"></i>
-                </div>
+    <!-- ESTADO DE CARGA -->
+    @if (cargando) {
+      <div class="text-center p-4">
+        <span
+          class="spinner-border spinner-border-sm me-2"
+          role="status"
+          aria-hidden="true"
+        ></span>
+        Cargando eventos...
+      </div>
+    } @else {
 
-                <div class="event-info__details">
-                  <span class="event-info__name">Festival de música</span>
-                  <small>#EVT-1001</small>
-                </div>
-              </div>
-            </td>
+      <!-- TABLA DE EVENTOS -->
+      <div class="table-responsive">
+        <table class="table events-table align-middle mb-0">
 
-            <td>
-              <div class="event-location">
-                <span>Teatro Municipal</span>
-                <small>Tuluá</small>
-              </div>
-            </td>
+          <!-- ENCABEZADOS -->
+          <thead>
+            <tr>
+              <th scope="col">Evento</th>
+              <th scope="col">Lugar y ciudad</th>
+              <th scope="col">Fecha de inicio</th>
+              <th scope="col">Capacidad</th>
+              <th scope="col">Precio</th>
+              <th scope="col">Estado</th>
+              <th scope="col" class="text-end">
+                Acciones
+              </th>
+            </tr>
+          </thead>
 
-            <td>
-              <div class="event-date">
-                <span>18 oct. 2026</span>
-                <small>7:00 p. m.</small>
-              </div>
-            </td>
+          <!-- DATOS REALES DESDE LA API -->
+          <tbody>
 
-            <td>500 personas</td>
+            @for (evento of eventos; track evento.codigo) {
+              <tr>
 
-            <td>
-              <span class="event-price">$80.000</span>
-              <small class="event-price__currency">COP</small>
-            </td>
+                <!-- NOMBRE Y CÓDIGO -->
+                <td>
+                  <div class="event-info">
 
-            <td>
-              <span class="event-status event-status--scheduled">
-                <span class="event-status__dot"></span>
-                Programado
-              </span>
-            </td>
+                    <div
+                      class="event-info__icon event-info__icon--music"
+                    >
+                      <i class="bi bi-calendar-event"></i>
+                    </div>
 
-            <td>
-              <div class="event-actions">
-                <button
-                  type="button"
-                  class="event-action event-action--edit"
-                  aria-label="Editar Festival de música"
-                  title="Editar evento"
+                    <div class="event-info__details">
+                      <span class="event-info__name">
+                        {{ evento.nombre }}
+                      </span>
+
+                      <small>
+                        #EVT-{{ evento.codigo }}
+                      </small>
+                    </div>
+
+                  </div>
+                </td>
+
+                <!-- LUGAR Y CIUDAD -->
+                <td>
+                  <div class="event-location">
+                    <span>
+                      {{ evento.teatro }}
+                    </span>
+
+                    <small>
+                      {{ evento.ciudad }}
+                    </small>
+                  </div>
+                </td>
+
+                <!-- FECHA DE INICIO -->
+                <td>
+                  <div class="event-date">
+                    <span>
+                      {{
+                        evento.fecha_inicio
+                        | date:'dd MMM yyyy':'America/Bogota':'es-CO'
+                      }}
+                    </span>
+
+                    <small>
+                      {{
+                        evento.fecha_inicio
+                        | date:'h:mm a':'America/Bogota':'es-CO'
+                      }}
+                    </small>
+                  </div>
+                </td>
+
+                <!-- CAPACIDAD -->
+                <td>
+                  <span>
+                    {{ evento.capacidad }} personas
+                  </span>
+                </td>
+
+                <!-- PRECIO -->
+                <td>
+                  <span class="event-price">
+                    {{
+                      evento.precio
+                      | currency:'COP':'symbol-narrow':'1.0-0':'es-CO'
+                    }}
+                  </span>
+
+                  <small class="event-price__currency">
+                    COP
+                  </small>
+                </td>
+
+                <!-- ESTADO DEL EVENTO -->
+                <td>
+                  <span
+                    class="event-status"
+                    [ngClass]="{
+                      'event-status--scheduled':
+                        evento.estado === 'Programado',
+
+                      'event-status--ticketing':
+                        evento.estado === 'En Boleteria',
+
+                      'event-status--live':
+                        evento.estado === 'En Vivo',
+
+                      'event-status--finished':
+                        evento.estado === 'Finalizado',
+
+                      'event-status--cancelled':
+                        evento.estado === 'Cancelado'
+                    }"
+                  >
+                    <span class="event-status__dot"></span>
+                    {{ evento.estado }}
+                  </span>
+                </td>
+
+                <!-- ACCIONES -->
+                <td>
+                  <div class="event-actions">
+
+                    <!-- EDITAR: PENDIENTE DE IMPLEMENTAR -->
+<button
+  type="button"
+  class="event-action event-action--edit"
+  [attr.aria-label]="'Editar ' + evento.nombre"
+  title="Editar evento"
+  [routerLink]="['/agent/edit-event', evento.codigo]"
+>
+  <i class="bi bi-pencil-square"></i>
+  <span>Editar</span>
+</button>
+
+                   
+<!-- VER RESERVAS DEL EVENTO -->
+<a
+  class="event-action event-action--reservations"
+  [routerLink]="['/agent/reservations']"
+  [queryParams]="{ eventId: evento.codigo }"
+  [attr.aria-label]="'Ver reservas de ' + evento.nombre"
+  title="Ver reservas"
+>
+  <i class="bi bi-ticket-perforated"></i>
+  <span>Reservas</span>
+</a>
+
+                    <!-- ELIMINAR EVENTO -->
+                    <button
+                      type="button"
+                      class="event-action event-action--delete"
+                      [attr.aria-label]="'Eliminar ' + evento.nombre"
+                      title="Eliminar evento"
+                      (click)="eliminarEvento(evento.codigo)"
+                    >
+                      <i class="bi bi-trash"></i>
+                      <span>Eliminar</span>
+                    </button>
+
+                  </div>
+                </td>
+
+              </tr>
+
+            } @empty {
+
+              <!-- SIN EVENTOS -->
+              <tr>
+                <td
+                  colspan="7"
+                  class="text-center p-4"
                 >
-                  <i class="bi bi-pencil-square"></i>
-                  <span>Editar</span>
-                </button>
+                  <i class="bi bi-calendar-x me-2"></i>
+                  No hay eventos registrados.
+                </td>
+              </tr>
 
-                <button
-                  type="button"
-                  class="event-action event-action--reservations"
-                  aria-label="Ver reservas de Festival de música"
-                  title="Ver reservas"
-                >
-                  <i class="bi bi-ticket-perforated"></i>
-                  <span>Reservas</span>
-                </button>
-              </div>
-            </td>
-          </tr>
+            }
 
-          <tr>
-            <td>
-              <div class="event-info">
-                <div class="event-info__icon event-info__icon--theater">
-                  <i class="bi bi-ticket-perforated"></i>
-                </div>
+          </tbody>
+        </table>
+      </div>
+    }
 
-                <div class="event-info__details">
-                  <span class="event-info__name">Noche de teatro</span>
-                  <small>#EVT-1002</small>
-                </div>
-              </div>
-            </td>
-
-            <td>
-              <div class="event-location">
-                <span>Teatro Experimental</span>
-                <small>Cali</small>
-              </div>
-            </td>
-
-            <td>
-              <div class="event-date">
-                <span>22 oct. 2026</span>
-                <small>6:30 p. m.</small>
-              </div>
-            </td>
-
-            <td>200 personas</td>
-
-            <td>
-              <span class="event-price">$45.000</span>
-              <small class="event-price__currency">COP</small>
-            </td>
-
-            <td>
-              <span class="event-status event-status--ticketing">
-                <span class="event-status__dot"></span>
-                En Boletería
-              </span>
-            </td>
-
-            <td>
-              <div class="event-actions">
-                <button
-                  type="button"
-                  class="event-action event-action--edit"
-                  aria-label="Editar Noche de teatro"
-                  title="Editar evento"
-                >
-                  <i class="bi bi-pencil-square"></i>
-                  <span>Editar</span>
-                </button>
-
-                <button
-                  type="button"
-                  class="event-action event-action--reservations"
-                  aria-label="Ver reservas de Noche de teatro"
-                  title="Ver reservas"
-                >
-                  <i class="bi bi-ticket-perforated"></i>
-                  <span>Reservas</span>
-                </button>
-              </div>
-            </td>
-          </tr>
-
-          <tr>
-            <td>
-              <div class="event-info">
-                <div class="event-info__icon event-info__icon--comedy">
-                  <i class="bi bi-mic"></i>
-                </div>
-
-                <div class="event-info__details">
-                  <span class="event-info__name">Show de comedia</span>
-                  <small>#EVT-1003</small>
-                </div>
-              </div>
-            </td>
-
-            <td>
-              <div class="event-location">
-                <span>Auditorio Central</span>
-                <small>Buga</small>
-              </div>
-            </td>
-
-            <td>
-              <div class="event-date">
-                <span>25 sep. 2026</span>
-                <small>8:00 p. m.</small>
-              </div>
-            </td>
-
-            <td>150 personas</td>
-
-            <td>
-              <span class="event-price">$35.000</span>
-              <small class="event-price__currency">COP</small>
-            </td>
-
-            <td>
-              <span class="event-status event-status--finished">
-                <span class="event-status__dot"></span>
-                Finalizado
-              </span>
-            </td>
-
-            <td>
-              <div class="event-actions">
-                <button
-                  type="button"
-                  class="event-action event-action--edit"
-                  aria-label="Editar Show de comedia"
-                  title="Editar evento"
-                >
-                  <i class="bi bi-pencil-square"></i>
-                  <span>Editar</span>
-                </button>
-
-                <button
-                  type="button"
-                  class="event-action event-action--reservations"
-                  aria-label="Ver reservas de Show de comedia"
-                  title="Ver reservas"
-                >
-                  <i class="bi bi-ticket-perforated"></i>
-                  <span>Reservas</span>
-                </button>
-              </div>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
+    <!-- PIE DE TABLA -->
     <div class="events-panel__footer">
-      <span>Mostrando 3 eventos</span>
+      <span>
+        Mostrando {{ eventos.length }}
+        {{ eventos.length === 1 ? 'evento' : 'eventos' }}
+      </span>
     </div>
+
   </div>
 </section>

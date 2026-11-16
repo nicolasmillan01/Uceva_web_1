@@ -1,8 +1,7 @@
 
 import {
   Component,
-  inject,
-  computed
+  inject
 } from '@angular/core';
 
 import {
@@ -22,31 +21,34 @@ interface NavbarConfig {
 @Component({
   selector: 'app-navbar',
   standalone: true,
-  imports: [RouterLink, RouterLinkActive],
+  imports: [
+    RouterLink,
+    RouterLinkActive
+  ],
   templateUrl: './navbar.component.html',
-  styleUrl: './navbar.component.scss',
+  styleUrl: './navbar.component.scss'
 })
 export class NavbarComponent {
 
-  // Servicios
+  // SERVICIOS
   public authService = inject(AuthService);
   private router = inject(Router);
 
-  // Navegación del cliente
+  // NAVEGACIÓN DEL CLIENTE
   clientConfig: NavbarConfig[] = [
     {
       url: '/client/events',
       label: 'Eventos',
-      icon: 'calendar3'
+      icon: 'calendar-event'
     },
     {
       url: '/client/reservations',
       label: 'Reservaciones',
-      icon: 'calendar3'
+      icon: 'ticket-perforated'
     }
   ];
 
-  // Navegación del agente
+  // NAVEGACIÓN DEL AGENTE
   agentConfig: NavbarConfig[] = [
     {
       url: '/agent/events',
@@ -56,21 +58,43 @@ export class NavbarComponent {
     {
       url: '/agent/create-event',
       label: 'Crear Evento',
-      icon: 'calendar3'
+      icon: 'calendar-plus'
+    },
+    {
+      url: '/agent/reservations',
+      label: 'Reservaciones',
+      icon: 'ticket-perforated'
+    },
+    {
+      url: '/agent/reports',
+      label: 'Reportes',
+      icon: 'bar-chart-line'
     }
   ];
 
-  // Navegación según el rol autenticado
+  // NAVEGACIÓN DEL ADMINISTRADOR
+  adminConfig: NavbarConfig[] = [
+    {
+      url: '/admin/users',
+      label: 'Usuarios',
+      icon: 'people'
+    }
+  ];
+
+  // OPCIONES SEGÚN EL ROL
   navbarConfig: NavbarConfig[] = [];
 
   constructor() {
     this.setNavbarConfig();
   }
 
+  // CONFIGURAR MENÚ SEGÚN EL ROL
   setNavbarConfig(): void {
+
     const role = this.authService.currentUser()?.rol;
 
     switch (role) {
+
       case 'cliente':
         this.navbarConfig = this.clientConfig;
         break;
@@ -80,16 +104,18 @@ export class NavbarComponent {
         break;
 
       case 'administrador':
-        this.navbarConfig = [];
+        this.navbarConfig = this.adminConfig;
         break;
 
       default:
         this.navbarConfig = [];
+        break;
     }
   }
 
-  // Iniciales del usuario
+  // INICIALES DEL USUARIO
   get userInitials(): string {
+
     const nombre = this.authService.currentUser()?.nombre;
 
     if (!nombre) {
@@ -100,20 +126,25 @@ export class NavbarComponent {
       .trim()
       .split(/\s+/)
       .slice(0, 2)
-      .map(palabra => palabra.charAt(0).toUpperCase())
+      .map(
+        palabra => palabra.charAt(0).toUpperCase()
+      )
       .join('');
   }
 
-  // Nombre del usuario
+  // NOMBRE DEL USUARIO
   get userName(): string {
-    return this.authService.currentUser()?.nombre || 'Usuario';
+    return this.authService.currentUser()?.nombre
+      || 'Usuario';
   }
 
-  // Rol del usuario
+  // ROL DEL USUARIO
   get userRole(): string {
+
     const role = this.authService.currentUser()?.rol;
 
     switch (role) {
+
       case 'cliente':
         return 'Cliente';
 
@@ -128,9 +159,11 @@ export class NavbarComponent {
     }
   }
 
-  // Cerrar sesión
+  // CERRAR SESIÓN
   logout(): void {
+
     this.authService.logout();
+
     this.router.navigateByUrl('/login');
   }
 }

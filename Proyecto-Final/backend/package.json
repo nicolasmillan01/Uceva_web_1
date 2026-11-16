@@ -1,22 +1,30 @@
+
 {
   "name": "eventapp-backend",
   "version": "1.0.0",
   "private": true,
   "type": "module",
-
-"scripts": {
-  "start": "node src/server.js",
-  "dev": "node --watch src/server.js",
-  "db:init": "node scripts/init-db.js",
-  "db:seed": "node scripts/seed-db.js",
-  "db:setup": "npm run db:init && npm run db:seed"
-},
-
+  "scripts": {
+    "start": "npm run build && node src/server.js",
+    "dev": "npm run build && node --watch src/server.js",
+    "db:init": "node scripts/init-db.js",
+    "db:seed": "node scripts/seed-db.js",
+    "db:setup": "npm run db:init && npm run db:seed",
+    "typecheck": "tsc --noEmit",
+    "build": "tsc"
+  },
   "engines": {
     "node": ">=22.13.0"
   },
   "dependencies": {
-    "express": "^4.21.2",
-    "cors": "^2.8.5"
+    "cors": "^2.8.5",
+    "express": "^4.21.2"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/node": "^26.6.6",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
   }
 }

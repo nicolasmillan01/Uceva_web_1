@@ -3,6 +3,7 @@ import { DatabaseSync } from 'node:sqlite';
 import { mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { createAuthAndLocationTables } from '../migrations/001_auth_localizacion.js';
+import { createReservationsTable } from '../migrations/002_reservations.js';
 
 // Crear la carpeta donde se guardará la base de datos
 const dataDir = resolve('data');
@@ -36,3 +37,6 @@ db.exec(`
 // Crear las tablas de países, departamentos,
 // ciudades y usuarios
 createAuthAndLocationTables(db);
+
+// Crear tabla de reservas
+createReservationsTable(db);

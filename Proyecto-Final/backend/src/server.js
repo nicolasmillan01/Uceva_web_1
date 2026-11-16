@@ -14,6 +14,11 @@ import cityRoutes from './routes/city.routes.js';
 import authRoutes from './routes/auth.routes.js';
 import userRoutes from './routes/user.routes.js';
 
+import { authenticate } from './middlewares/auth.middleware.js';
+
+import { createReservationRoutes } from '../dist/routes/reservation.routes.js';
+
+import { db } from './config/database.js';
 
 const app = express();
 
@@ -47,6 +52,13 @@ app.use('/api/auth', authRoutes);
 
 // Rutas de administración de usuarios
 app.use('/api/users', userRoutes);
+
+// Reservas: requieren autenticación JWT
+app.use(
+  '/api/reservations',
+  authenticate,
+  createReservationRoutes(db)
+);
 
 // Ruta no encontrada
 app.use((req, res) => {

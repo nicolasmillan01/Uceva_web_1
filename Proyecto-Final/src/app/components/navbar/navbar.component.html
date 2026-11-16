@@ -25,7 +25,8 @@
         routerLinkActive="active"
         class="nav-link"
       >
-        <i class="bi bi-ticket-perforated"></i>
+        <i [class]="'bi bi-' + item.icon"></i>
+
         <span>{{ item.label }}</span>
       </a>
     }

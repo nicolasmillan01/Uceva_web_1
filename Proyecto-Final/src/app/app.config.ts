@@ -3,47 +3,54 @@ import {
   ApplicationConfig,
   inject,
   provideAppInitializer,
-  provideZoneChangeDetection
+  provideZoneChangeDetection,
+  provideBrowserGlobalErrorListeners,
+  LOCALE_ID
 } from '@angular/core';
+
+import { registerLocaleData } from '@angular/common';
+import localeEsCO from '@angular/common/locales/es-CO';
 
 import { provideRouter } from '@angular/router';
 import { provideHttpClient } from '@angular/common/http';
+
 import { firstValueFrom, of, catchError } from 'rxjs';
 
 import { routes } from './app.routes';
 import { AuthService } from './services/auth.service';
+// Registrar español de Colombia
+registerLocaleData(localeEsCO);
 
 export const appConfig: ApplicationConfig = {
   providers: [
 
-    // Configuración de detección de cambios
+    provideBrowserGlobalErrorListeners(),
+
     provideZoneChangeDetection({
       eventCoalescing: true
     }),
 
-    // Configuración de las rutas Angular
     provideRouter(routes),
 
-    // Comunicación HTTP con Node.js
     provideHttpClient(),
 
-    // Recuperar sesión al iniciar Angular
+    {
+      provide: LOCALE_ID,
+      useValue: 'es-CO'
+    },
+
+    // Recuperar sesión antes de iniciar Angular
     provideAppInitializer(() => {
 
       const authService = inject(AuthService);
 
-      // Si no existe token, continuar normalmente
       if (!authService.getToken()) {
         return Promise.resolve();
       }
 
-      // Validar el token y recuperar el usuario
       return firstValueFrom(
         authService.restoreSession().pipe(
-
-          // Si el token es inválido, continuar sin sesión
           catchError(() => of(null))
-
         )
       ).then(() => undefined);
 

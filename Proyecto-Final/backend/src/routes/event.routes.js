@@ -11,16 +11,22 @@ import {
 const router = Router();
 
 // Consulta pública de eventos.
+
+// Consulta pública de eventos.
 router.get('/', c.all);
-router.get('/:id', c.byId);
 
 // Consulta de eventos propios.
+// Debe estar antes de /:id.
 router.get(
   '/mine',
   authenticate,
   authorize('agente', 'administrador'),
   c.mine
 );
+
+// Consulta de un evento por ID.
+router.get('/:id', c.byId);
+
 
 // Crear eventos.
 router.post(

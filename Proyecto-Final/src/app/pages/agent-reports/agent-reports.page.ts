@@ -32,7 +32,7 @@ export class AgentReportsPage implements OnInit {
     this.cargando = true;
     this.error = '';
 
-    this.eventsService.getAll()
+    this.eventsService.getMine()
       .pipe(finalize(() => this.cargando = false))
       .subscribe({
         next: (eventos: Event[]) => {

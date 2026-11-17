@@ -29,7 +29,7 @@ export class AgentEventsPage implements OnInit {
     this.cargando = true;
     this.error = '';
 
-    this.eventsService.getAll().subscribe({
+    this.eventsService.getMine().subscribe({
       next: (datos: Event[]) => {
         this.eventos = datos;
         this.cargando = false;

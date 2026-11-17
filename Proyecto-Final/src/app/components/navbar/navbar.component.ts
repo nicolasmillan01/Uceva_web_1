@@ -1,5 +1,16 @@
-import { Component, inject } from '@angular/core';
-import { Router, RouterLink, RouterLinkActive } from '@angular/router';
+
+import {
+  Component,
+  inject
+} from '@angular/core';
+
+import {
+  Router,
+  RouterLink,
+  RouterLinkActive
+} from '@angular/router';
+
+import { AuthService } from '../../services/auth.service';
 
 interface NavbarConfig {
   url: string;
@@ -9,58 +20,150 @@ interface NavbarConfig {
 
 @Component({
   selector: 'app-navbar',
-  imports: [RouterLink, RouterLinkActive],
+  standalone: true,
+  imports: [
+    RouterLink,
+    RouterLinkActive
+  ],
   templateUrl: './navbar.component.html',
-  styleUrl: './navbar.component.scss',
+  styleUrl: './navbar.component.scss'
 })
 export class NavbarComponent {
 
-  navbarConfig: NavbarConfig[] = [];
-
-  clientConfig: NavbarConfig[] = [
-    { url: '/client/events', label: 'Eventos', icon: 'calendar3' },
-    { url: '/client/reservations', label: 'Reservaciones', icon: 'calendar3' },
-  ]
-
-  agentConfig: NavbarConfig[] = [
-    { url: '/agent/events', label: 'Eventos', icon: 'calendar3' },
-    { url: '/agent/create-event', label: 'Crear Evento', icon: 'calendar3' },
-  ]
-
+  // SERVICIOS
+  public authService = inject(AuthService);
   private router = inject(Router);
 
-  constructor(){
+  // NAVEGACIÓN DEL CLIENTE
+  clientConfig: NavbarConfig[] = [
+    {
+      url: '/client/events',
+      label: 'Eventos',
+      icon: 'calendar-event'
+    },
+    {
+      url: '/client/reservations',
+      label: 'Reservaciones',
+      icon: 'ticket-perforated'
+    }
+  ];
+
+  // NAVEGACIÓN DEL AGENTE
+  agentConfig: NavbarConfig[] = [
+    {
+      url: '/agent/events',
+      label: 'Eventos',
+      icon: 'calendar3'
+    },
+    {
+      url: '/agent/create-event',
+      label: 'Crear Evento',
+      icon: 'calendar-plus'
+    },
+    {
+      url: '/agent/reservations',
+      label: 'Reservaciones',
+      icon: 'ticket-perforated'
+    },
+    {
+      url: '/agent/reports',
+      label: 'Reportes',
+      icon: 'bar-chart-line'
+    }
+  ];
+
+  // NAVEGACIÓN DEL ADMINISTRADOR
+  adminConfig: NavbarConfig[] = [
+    {
+      url: '/admin/users',
+      label: 'Usuarios',
+      icon: 'people'
+    }
+  ];
+
+  // OPCIONES SEGÚN EL ROL
+  navbarConfig: NavbarConfig[] = [];
+
+  constructor() {
     this.setNavbarConfig();
   }
 
-  setNavbarConfig(){
-    switch(this.getRole()){
-      case 'client':
+  // CONFIGURAR MENÚ SEGÚN EL ROL
+  setNavbarConfig(): void {
+
+    const role = this.authService.currentUser()?.rol;
+
+    switch (role) {
+
+      case 'cliente':
         this.navbarConfig = this.clientConfig;
         break;
-      case 'agent':
+
+      case 'agente':
         this.navbarConfig = this.agentConfig;
+        break;
+
+      case 'administrador':
+        this.navbarConfig = this.adminConfig;
+        break;
+
+      default:
+        this.navbarConfig = [];
         break;
     }
   }
 
-  getRole(): 'client' | 'agent' | 'admin' {
+  // INICIALES DEL USUARIO
+  get userInitials(): string {
 
-    const url = this.router.url;
+    const nombre = this.authService.currentUser()?.nombre;
 
-    if (url.includes('/client')) {
-      return 'client';
+    if (!nombre) {
+      return 'US';
     }
 
-    if (url.includes('/agent')) {
-      return 'agent';
-    }
-
-    if (url.includes('/admin')) {
-      return 'admin';
-    }
-
-    return 'client';
+    return nombre
+      .trim()
+      .split(/\s+/)
+      .slice(0, 2)
+      .map(
+        palabra => palabra.charAt(0).toUpperCase()
+      )
+      .join('');
   }
 
+  // NOMBRE DEL USUARIO
+  get userName(): string {
+    return this.authService.currentUser()?.nombre
+      || 'Usuario';
+  }
+
+  // ROL DEL USUARIO
+  get userRole(): string {
+
+    const role = this.authService.currentUser()?.rol;
+
+    switch (role) {
+
+      case 'cliente':
+        return 'Cliente';
+
+      case 'agente':
+        return 'Agente';
+
+      case 'administrador':
+        return 'Administrador';
+
+      default:
+        return '';
+    }
+  }
+
+  // CERRAR SESIÓN
+  logout(): void {
+
+    this.authService.logout();
+
+    this.router.navigateByUrl('/login');
+  }
 }

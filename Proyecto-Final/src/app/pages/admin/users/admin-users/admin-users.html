@@ -1,0 +1,348 @@
+
+<app-navbar />
+
+<div class="container py-5">
+
+  <!-- ENCABEZADO -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="fw-bold mb-1">Administración de usuarios</h2>
+      <p class="text-muted mb-0">
+        Gestiona clientes, agentes y administradores de EventApp.
+      </p>
+    </div>
+
+    <button
+      type="button"
+      class="btn btn-primary"
+      (click)="nuevoUsuario()"
+    >
+      <i class="bi bi-person-plus me-2"></i>
+      Nuevo usuario
+    </button>
+  </div>
+
+  <!-- MENSAJES -->
+  @if (errorMessage) {
+    <div class="alert alert-danger" role="alert">
+      {{ errorMessage }}
+    </div>
+  }
+
+  @if (successMessage) {
+    <div class="alert alert-success" role="status">
+      {{ successMessage }}
+    </div>
+  }
+
+  <!-- FORMULARIO -->
+  @if (mostrarFormulario) {
+    <div class="card shadow-sm border-0 mb-4">
+      <div class="card-body p-4">
+
+        <h4 class="mb-4">
+          {{ editando ? 'Editar usuario' : 'Crear usuario' }}
+        </h4>
+
+        <form #userForm="ngForm" (ngSubmit)="guardarUsuario()">
+          <div class="row g-3">
+
+            <!-- NOMBRE -->
+            <div class="col-md-6">
+              <label for="nombre" class="form-label">
+                Nombre completo
+              </label>
+
+              <input
+                id="nombre"
+                name="nombre"
+                type="text"
+                class="form-control"
+                [(ngModel)]="formulario.nombre"
+                minlength="2"
+                maxlength="100"
+                required
+              >
+            </div>
+
+            <!-- CORREO -->
+            <div class="col-md-6">
+              <label for="email" class="form-label">
+                Correo electrónico
+              </label>
+
+              <input
+                id="email"
+                name="email"
+                type="email"
+                class="form-control"
+                [(ngModel)]="formulario.email"
+                [disabled]="editando"
+                required
+                email
+              >
+            </div>
+
+            <!-- CONTRASEÑA -->
+            @if (!editando) {
+              <div class="col-md-6">
+                <label for="password" class="form-label">
+                  Contraseña
+                </label>
+
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  class="form-control"
+                  [(ngModel)]="formulario.password"
+                  minlength="8"
+                  maxlength="128"
+                  required
+                >
+
+                <div class="form-text">
+                  Entre 8 y 128 caracteres.
+                </div>
+              </div>
+            }
+
+            <!-- ROL -->
+            <div class="col-md-6">
+              <label for="rol" class="form-label">
+                Rol del usuario
+              </label>
+
+              <select
+                id="rol"
+                name="rol"
+                class="form-select"
+                [(ngModel)]="formulario.rol"
+                required
+              >
+                <option value="cliente">Cliente</option>
+                <option value="agente">Agente</option>
+                <option value="administrador">Administrador</option>
+              </select>
+            </div>
+
+            <!-- PAÍS -->
+            <div class="col-md-6">
+              <label for="pais" class="form-label">
+                País
+              </label>
+
+              <select
+                id="pais"
+                name="pais"
+                class="form-select"
+                [(ngModel)]="paisSeleccionado"
+                (ngModelChange)="cambiarPais()"
+                [required]="!editando"
+              >
+                <option [ngValue]="null">
+                  Selecciona un país
+                </option>
+
+                @for (pais of paises; track pais.id) {
+                  <option [ngValue]="pais.id">
+                    {{ pais.nombre }}
+                  </option>
+                }
+              </select>
+            </div>
+
+            <!-- DEPARTAMENTO -->
+            <div class="col-md-6">
+              <label for="departamento" class="form-label">
+                Departamento
+              </label>
+
+              <select
+                id="departamento"
+                name="departamento"
+                class="form-select"
+                [(ngModel)]="departamentoSeleccionado"
+                (ngModelChange)="cambiarDepartamento()"
+                [disabled]="paisSeleccionado === null"
+                [required]="!editando"
+              >
+                <option [ngValue]="null">
+                  Selecciona un departamento
+                </option>
+
+                @for (
+                  departamento of departamentos;
+                  track departamento.id
+                ) {
+                  <option [ngValue]="departamento.id">
+                    {{ departamento.nombre }}
+                  </option>
+                }
+              </select>
+            </div>
+
+            <!-- CIUDAD -->
+            <div class="col-md-6">
+              <label for="city_id" class="form-label">
+                Ciudad
+              </label>
+
+              <select
+                id="city_id"
+                name="city_id"
+                class="form-select"
+                [(ngModel)]="formulario.city_id"
+                [disabled]="departamentoSeleccionado === null"
+                [required]="!editando"
+              >
+                <option [ngValue]="0">
+                  Selecciona una ciudad
+                </option>
+
+                @for (ciudad of ciudades; track ciudad.id) {
+                  <option [ngValue]="ciudad.id">
+                    {{ ciudad.nombre }}
+                  </option>
+                }
+              </select>
+
+              @if (editando && departamentoSeleccionado === null) {
+                <div class="form-text">
+                  Ciudad actual: ID {{ formulario.city_id }}.
+                  Selecciona un país y un departamento
+                  si deseas cambiarla.
+                </div>
+              }
+            </div>
+
+          </div>
+
+          <!-- ACCIONES -->
+          <div class="d-flex gap-2 mt-4">
+
+            <button
+              type="submit"
+              class="btn btn-primary"
+              [disabled]="saving || userForm.invalid || (!editando && formulario.city_id <= 0)"
+            >
+              @if (saving) {
+                Guardando...
+              } @else {
+                Guardar usuario
+              }
+            </button>
+
+            <button
+              type="button"
+              class="btn btn-outline-secondary"
+              (click)="cancelar()"
+              [disabled]="saving"
+            >
+              Cancelar
+            </button>
+
+          </div>
+        </form>
+
+      </div>
+    </div>
+  }
+
+  <!-- TABLA DE USUARIOS -->
+  <div class="card shadow-sm border-0">
+
+    <div class="card-header bg-white py-3">
+      <h5 class="mb-0">
+        Usuarios registrados ({{ usuarios.length }})
+      </h5>
+    </div>
+
+    <div class="card-body p-0">
+
+      @if (loading) {
+        <div class="p-4 text-center">
+          Cargando usuarios...
+        </div>
+      } @else {
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+
+            <thead class="table-light">
+              <tr>
+                <th class="ps-4">ID</th>
+                <th>Nombre</th>
+                <th>Correo</th>
+                <th>Rol</th>
+                <th>Ciudad ID</th>
+                <th class="text-end pe-4">Acciones</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              @for (usuario of usuarios; track usuario.id) {
+                <tr>
+                  <td class="ps-4">
+                    {{ usuario.id }}
+                  </td>
+
+                  <td class="fw-semibold">
+                    {{ usuario.nombre }}
+                  </td>
+
+                  <td>
+                    {{ usuario.email }}
+                  </td>
+
+                  <td>
+                    <span
+                      class="badge"
+                      [ngClass]="{
+                        'bg-primary': usuario.rol === 'administrador',
+                        'bg-info text-dark': usuario.rol === 'agente',
+                        'bg-secondary': usuario.rol === 'cliente'
+                      }"
+                    >
+                      {{ usuario.rol }}
+                    </span>
+                  </td>
+
+                  <td>
+                    {{ usuario.city_id }}
+                  </td>
+
+                  <td class="text-end pe-4">
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-outline-primary me-2"
+                      (click)="editarUsuario(usuario)"
+                    >
+                      Editar
+                    </button>
+
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-outline-danger"
+                      (click)="eliminarUsuario(usuario)"
+                    >
+                      Eliminar
+                    </button>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="6" class="text-center py-4">
+                    No hay usuarios registrados.
+                  </td>
+                </tr>
+              }
+            </tbody>
+
+          </table>
+        </div>
+      }
+
+    </div>
+  </div>
+
+</div>

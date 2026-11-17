@@ -1,0 +1,171 @@
+
+<main class="container py-4">
+
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <span class="text-muted">GESTIÓN DE EVENTOS</span>
+      <h1>Reportes de eventos</h1>
+      <p>Resumen de los eventos registrados en EventApp.</p>
+    </div>
+
+    <a routerLink="/agent/events" class="btn btn-outline-secondary">
+      Volver a eventos
+    </a>
+  </div>
+
+  <div *ngIf="cargando" class="alert alert-info">
+    Cargando reportes...
+  </div>
+
+  <div *ngIf="error" class="alert alert-danger">
+    {{ error }}
+    <button
+      type="button"
+      class="btn btn-outline-danger ms-3"
+      (click)="cargarReporte()">
+      Reintentar
+    </button>
+  </div>
+
+  <ng-container *ngIf="!cargando && !error">
+
+    <div class="row g-3 mb-4">
+
+      <div class="col-md-4">
+        <div class="card h-100">
+          <div class="card-body">
+            <h2 class="h6">Total de eventos</h2>
+            <strong class="fs-2">{{ totalEventos }}</strong>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card h-100">
+          <div class="card-body">
+            <h2 class="h6">Capacidad total</h2>
+            <strong class="fs-2">
+              {{ capacidadTotal | number:'1.0-0':'es-CO' }}
+            </strong>
+            <p class="text-muted mb-0">Entradas de capacidad máxima</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card h-100">
+          <div class="card-body">
+            <h2 class="h6">Ciudades con eventos</h2>
+            <strong class="fs-2">{{ ciudades.length }}</strong>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <section class="card mb-4">
+      <div class="card-body">
+        <h2 class="h5">Eventos por estado</h2>
+
+        <div class="row g-3 mt-2">
+          <div class="col-md-4">
+            <strong>Programados</strong>
+            <p>{{ contarPorEstado('Programado') }}</p>
+          </div>
+
+          <div class="col-md-4">
+            <strong>En boletería</strong>
+            <p>{{ contarPorEstado('En Boleteria') }}</p>
+          </div>
+
+          <div class="col-md-4">
+            <strong>En vivo</strong>
+            <p>{{ contarPorEstado('En Vivo') }}</p>
+          </div>
+
+          <div class="col-md-4">
+            <strong>Finalizados</strong>
+            <p>{{ contarPorEstado('Finalizado') }}</p>
+          </div>
+
+          <div class="col-md-4">
+            <strong>Cancelados</strong>
+            <p>{{ contarPorEstado('Cancelado') }}</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card mb-4">
+      <div class="card-body">
+        <h2 class="h5">Eventos por ciudad</h2>
+
+        <p *ngIf="ciudades.length === 0">
+          No hay eventos registrados.
+        </p>
+
+        <table
+          *ngIf="ciudades.length > 0"
+          class="table table-striped">
+
+          <thead>
+            <tr>
+              <th>Ciudad</th>
+              <th>Eventos</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr *ngFor="let ciudad of ciudades">
+              <td>{{ ciudad.nombre }}</td>
+              <td>{{ ciudad.cantidad }}</td>
+            </tr>
+          </tbody>
+
+        </table>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-body">
+
+        <h2 class="h5">Listado general de eventos</h2>
+
+        <div class="table-responsive">
+          <table class="table table-striped align-middle">
+            <thead>
+              <tr>
+                <th>Código</th>
+                <th>Evento</th>
+                <th>Ciudad</th>
+                <th>Fecha</th>
+                <th>Capacidad</th>
+                <th>Estado</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr *ngFor="let evento of eventos">
+                <td>{{ evento.codigo }}</td>
+                <td>{{ evento.nombre }}</td>
+                <td>{{ evento.ciudad }}</td>
+                <td>
+                  {{ evento.fecha_inicio | date:'dd/MM/yyyy':'':'es-CO' }}
+                </td>
+                <td>{{ evento.capacidad }}</td>
+                <td>{{ evento.estado }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p *ngIf="eventos.length === 0" class="text-muted">
+          No hay eventos registrados.
+        </p>
+
+      </div>
+    </section>
+
+  </ng-container>
+
+</main>

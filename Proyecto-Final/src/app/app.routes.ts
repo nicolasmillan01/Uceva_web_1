@@ -1,24 +1,35 @@
 
 import { Routes } from '@angular/router';
 
+// AUTENTICACIÓN
 import { LoginPage } from './pages/login/login.page';
 import { RegisterPage } from './pages/register/register.page';
 
+// PÁGINAS PRINCIPALES
 import { ClientPage } from './pages/client/client.page';
 import { AgentPage } from './pages/agent/agent.page';
 import { AdminPage } from './pages/admin/admin.page';
 
+// CLIENTES
 import { ClientEventsPage } from './pages/client-events/client-events.page';
 import { ClientReservationsPage } from './pages/client-reservations/client-reservations.page';
 import { ClientCreateReservationPage } from './pages/client-create-reservation/client-create-reservation.page';
 
+// AGENTES
 import { AgentEventsPage } from './pages/agent-events/agent-events.page';
 import { AgentReservationsPage } from './pages/agent-reservations/agent-reservations.page';
 import { AgentCreateEventPage } from './pages/agent-create-event/agent-create-event.page';
+import { AgentReportsPage } from './pages/agent-reports/agent-reports.page';
+
+// SEGURIDAD
+import { authGuard } from './guards/auth.guard';
+import { roleGuard } from './guards/role.guard';
 
 export const routes: Routes = [
 
-  // AUTENTICACIÓN
+  // ========================================
+  // RUTAS PÚBLICAS
+  // ========================================
   {
     path: 'login',
     component: LoginPage
@@ -28,10 +39,23 @@ export const routes: Routes = [
     component: RegisterPage
   },
 
+  // ========================================
   // CLIENTES
+  // ========================================
   {
     path: 'client',
     component: ClientPage,
+
+    canActivate: [
+      authGuard,
+      roleGuard(['cliente'])
+    ],
+
+    canActivateChild: [
+      authGuard,
+      roleGuard(['cliente'])
+    ],
+
     children: [
       {
         path: 'events',
@@ -53,14 +77,31 @@ export const routes: Routes = [
     ]
   },
 
+  // ========================================
   // AGENTES
+  // ========================================
   {
     path: 'agent',
     component: AgentPage,
+
+    canActivate: [
+      authGuard,
+      roleGuard(['agente'])
+    ],
+
+    canActivateChild: [
+      authGuard,
+      roleGuard(['agente'])
+    ],
+
     children: [
       {
         path: 'events',
         component: AgentEventsPage
+      },
+      {
+        path: 'reservations',
+        component: AgentReservationsPage
       },
       {
         path: 'create-event',
@@ -71,8 +112,8 @@ export const routes: Routes = [
         component: AgentCreateEventPage
       },
       {
-        path: 'reservations',
-        component: AgentReservationsPage
+        path: 'reports',
+        component: AgentReportsPage
       },
       {
         path: '',
@@ -82,17 +123,59 @@ export const routes: Routes = [
     ]
   },
 
+  // ========================================
   // ADMINISTRADORES
+  // ========================================
   {
     path: 'admin',
-    component: AdminPage
+
+    canActivate: [
+      authGuard,
+      roleGuard(['administrador'])
+    ],
+
+    canActivateChild: [
+      authGuard,
+      roleGuard(['administrador'])
+    ],
+
+    children: [
+      {
+        path: '',
+        component: AdminPage
+      },
+      {
+        path: 'users',
+        loadComponent: () =>
+          import(
+            './pages/admin/users/admin-users/admin-users'
+          ).then(m => m.AdminUsers)
+      },
+      {
+        path: 'reservations',
+        loadComponent: () =>
+          import(
+            './pages/admin/admin-reservations/admin-reservations'
+          ).then(m => m.AdminReservations)
+      }
+    ]
   },
 
-  // RUTA INICIAL
+  // ========================================
+  // REDIRECCIÓN INICIAL
+  // ========================================
   {
     path: '',
     redirectTo: 'login',
     pathMatch: 'full'
+  },
+
+  // ========================================
+  // RUTAS INEXISTENTES
+  // ========================================
+  {
+    path: '**',
+    redirectTo: 'login'
   }
 
 ];

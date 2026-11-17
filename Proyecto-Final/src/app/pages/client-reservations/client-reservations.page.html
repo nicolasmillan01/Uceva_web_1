@@ -5,10 +5,53 @@
 
     <div class="reservations-panel__header">
       <h2>Mis reservas</h2>
-      <span class="reservations-panel__count">3 reservas</span>
+
+      <span class="reservations-panel__count">
+        {{ totalReservas }}
+        {{ totalReservas === 1 ? 'reserva' : 'reservas' }}
+      </span>
     </div>
 
-    <div class="table-responsive">
+    <!-- Estado de carga -->
+    <div *ngIf="cargando" class="p-4 text-center">
+      <p>Consultando tus reservas...</p>
+    </div>
+
+    <!-- Mensaje de error -->
+    <div *ngIf="!cargando && error" class="p-4">
+      <div class="alert alert-danger" role="alert">
+        {{ error }}
+      </div>
+
+      <button
+        type="button"
+        class="btn btn-outline-primary"
+        (click)="cargarReservas()">
+        Reintentar
+      </button>
+    </div>
+
+    <!-- Sin reservas -->
+    <div
+      *ngIf="!cargando && !error && reservas.length === 0"
+      class="p-4 text-center">
+
+      <h3 class="h5">Todavía no tienes reservas</h3>
+
+      <p class="text-muted">
+        Cuando realices una reserva, aparecerá aquí.
+      </p>
+
+      <a routerLink="/client/events" class="btn btn-primary">
+        Ver eventos
+      </a>
+    </div>
+
+    <!-- Tabla de reservas -->
+    <div
+      *ngIf="!cargando && !error && reservas.length > 0"
+      class="table-responsive">
+
       <table class="table reservations-table align-middle mb-0">
 
         <thead>
@@ -23,38 +66,12 @@
         </thead>
 
         <tbody>
-          <tr>
-            <td>
-              <span class="reservation-code">#1001</span>
-            </td>
+          <tr *ngFor="let reserva of reservas">
 
             <td>
-              <div class="reservation-event">
-                <div class="reservation-event__icon">
-                  <i class="bi bi-music-note-beamed"></i>
-                </div>
-                <span>Concierto de música en vivo</span>
-              </div>
-            </td>
-
-            <td>02 oct. 2026</td>
-            <td>2</td>
-
-            <td>
-              <span class="reservation-total">$160.000</span>
-              <small class="reservation-currency">COP</small>
-            </td>
-
-            <td>
-              <span class="reservation-status reservation-status--confirmed">
-                Confirmada
+              <span class="reservation-code">
+                #{{ reserva.codigo }}
               </span>
-            </td>
-          </tr>
-
-          <tr>
-            <td>
-              <span class="reservation-code">#1002</span>
             </td>
 
             <td>
@@ -62,52 +79,35 @@
                 <div class="reservation-event__icon">
                   <i class="bi bi-ticket-perforated"></i>
                 </div>
-                <span>Festival de música</span>
+
+                <span>{{ reserva.nombreEvento }}</span>
               </div>
             </td>
 
-            <td>03 oct. 2026</td>
-            <td>3</td>
+            <td>
+              {{ reserva.fecha_reserva | date:'dd MMM yyyy':'':'es-CO' }}
+            </td>
 
             <td>
-              <span class="reservation-total">$240.000</span>
+              {{ reserva.cantidad }}
+            </td>
+
+            <td>
+              <span class="reservation-total">
+$ {{ reserva.total | number:'1.0-0':'es-CO' }}              </span>
               <small class="reservation-currency">COP</small>
             </td>
 
             <td>
-              <span class="reservation-status reservation-status--reserved">
-                Reservada
+              <span
+                class="reservation-status"
+                [ngClass]="claseEstado(reserva.estado)">
+
+                {{ reserva.estado }}
+
               </span>
             </td>
-          </tr>
 
-          <tr>
-            <td>
-              <span class="reservation-code">#1003</span>
-            </td>
-
-            <td>
-              <div class="reservation-event">
-                <div class="reservation-event__icon">
-                  <i class="bi bi-mic"></i>
-                </div>
-                <span>Show de comedia</span>
-              </div>
-            </td>
-
-            <td>04 oct. 2026</td>
-            <td>1</td>
-
-            <td>
-              <span class="reservation-total">$50.000</span>
-              <small class="reservation-currency">COP</small>
-            </td>
-
-            <td>
-              <span class="reservation-status reservation-status--cancelled">
-                Cancelada
-              </span>
-            </td>
           </tr>
         </tbody>
 

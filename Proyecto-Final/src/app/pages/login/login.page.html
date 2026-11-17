@@ -1,3 +1,4 @@
+
 <div class="auth-page">
   <div class="row g-0 min-vh-100">
 
@@ -5,7 +6,6 @@
     <div class="col-lg-6 d-none d-lg-flex auth-info">
       <div class="auth-info-content">
         <h1>EventApp</h1>
-
         <p>
           Gestiona tus eventos, reservas y experiencias
           desde un solo lugar.
@@ -13,21 +13,20 @@
       </div>
     </div>
 
-    <!-- Formulario -->
+    <!-- Formulario de autenticación -->
     <div class="col-12 col-lg-6 d-flex align-items-center justify-content-center">
       <div class="auth-card">
 
         <div class="text-center mb-4">
           <h2>Iniciar sesión</h2>
-
           <p class="text-muted">
             Ingresa tus credenciales para continuar
           </p>
         </div>
 
-        <form>
+        <form (ngSubmit)="login()" #loginForm="ngForm">
 
-          <!-- Email -->
+          <!-- Correo electrónico -->
           <div class="mb-3">
             <label for="email" class="form-label">
               Correo electrónico
@@ -39,11 +38,13 @@
               name="email"
               class="form-control"
               placeholder="correo@ejemplo.com"
+              [(ngModel)]="email"
               required
+              email
             >
           </div>
 
-          <!-- Password -->
+          <!-- Contraseña -->
           <div class="mb-3">
             <label for="password" class="form-label">
               Contraseña
@@ -55,38 +56,34 @@
               name="password"
               class="form-control"
               placeholder="Ingresa tu contraseña"
+              [(ngModel)]="password"
               required
             >
           </div>
 
-          <!-- Recordar -->
-          <div class="form-check mb-4">
-            <input
-              type="checkbox"
-              id="rememberEmail"
-              name="rememberEmail"
-              class="form-check-input"
-            >
+          <!-- Mensaje de error -->
+          @if (errorMessage()) {
+            <div class="alert alert-danger" role="alert">
+              {{ errorMessage() }}
+            </div>
+          }
 
-            <label
-              for="rememberEmail"
-              class="form-check-label"
-            >
-              Recordar mi correo
-            </label>
-          </div>
-
-          <!-- Botón -->
+          <!-- Iniciar sesión -->
           <button
             type="submit"
             class="btn btn-primary w-100"
+            [disabled]="loading() || loginForm.invalid"
           >
-            Iniciar sesión
+            @if (loading()) {
+              Iniciando sesión...
+            } @else {
+              Iniciar sesión
+            }
           </button>
 
         </form>
 
-        <!-- Registro -->
+        <!-- Enlace al registro -->
         <div class="text-center mt-4">
           <span class="text-muted">
             ¿No tienes una cuenta?

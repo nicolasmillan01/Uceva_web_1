@@ -178,17 +178,18 @@
   <span>Editar</span>
 </button>
 
-                    <!-- RESERVAS: PENDIENTE DE IMPLEMENTAR -->
-                    <button
-                      type="button"
-                      class="event-action event-action--reservations"
-                      [attr.aria-label]="'Ver reservas de ' + evento.nombre"
-                      title="Ver reservas"
-                      disabled
-                    >
-                      <i class="bi bi-ticket-perforated"></i>
-                      <span>Reservas</span>
-                    </button>
+                   
+<!-- VER RESERVAS DEL EVENTO -->
+<a
+  class="event-action event-action--reservations"
+  [routerLink]="['/agent/reservations']"
+  [queryParams]="{ eventId: evento.codigo }"
+  [attr.aria-label]="'Ver reservas de ' + evento.nombre"
+  title="Ver reservas"
+>
+  <i class="bi bi-ticket-perforated"></i>
+  <span>Reservas</span>
+</a>
 
                     <!-- ELIMINAR EVENTO -->
                     <button

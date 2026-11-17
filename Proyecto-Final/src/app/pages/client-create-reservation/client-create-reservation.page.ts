@@ -1,6 +1,7 @@
 
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 
 import {
   FormBuilder,
@@ -14,13 +15,11 @@ import {
   RouterLink
 } from '@angular/router';
 
-import { HttpErrorResponse } from '@angular/common/http';
 import { finalize } from 'rxjs';
 
+import { Event } from '../../interfaces/event.interface';
 import { EventsService } from '../../services/events.service';
 import { ReservationsService } from '../../services/reservations.service';
-
-import { Event } from '../../interfaces/event.interface';
 
 @Component({
   selector: 'app-client-create-reservation.page',
@@ -75,13 +74,15 @@ export class ClientCreateReservationPage implements OnInit {
 
   ngOnInit(): void {
     const parametro = this.route.snapshot.paramMap.get('id');
+
+    if (parametro === null || !/^[1-9]\d*$/.test(parametro)) {
+      this.error = 'Identificador del evento inválido.';
+      return;
+    }
+
     const codigo = Number(parametro);
 
-    if (
-      parametro === null ||
-      !Number.isSafeInteger(codigo) ||
-      codigo < 1
-    ) {
+    if (!Number.isSafeInteger(codigo)) {
       this.error = 'Identificador del evento inválido.';
       return;
     }
@@ -92,13 +93,19 @@ export class ClientCreateReservationPage implements OnInit {
   cargarEvento(codigo: number): void {
     this.cargando = true;
     this.error = '';
+    this.evento = null;
 
     this.eventsService.getById(codigo)
-      .pipe(finalize(() => this.cargando = false))
+      .pipe(
+        finalize(() => {
+          this.cargando = false;
+        })
+      )
       .subscribe({
         next: (evento: Event) => {
           this.evento = evento;
         },
+
         error: (err: HttpErrorResponse) => {
           this.error =
             err.error?.error ||
@@ -111,18 +118,13 @@ export class ClientCreateReservationPage implements OnInit {
     this.error = '';
     this.exito = '';
 
-    if (
-      this.guardando ||
-      this.cargando ||
-      !this.evento
-    ) {
+    if (this.guardando || this.cargando || !this.evento) {
       return;
     }
 
     if (this.formulario.invalid) {
       this.formulario.markAllAsTouched();
-      this.error =
-        'Selecciona una cantidad válida de entradas.';
+      this.error = 'Selecciona una cantidad válida de entradas.';
       return;
     }
 
@@ -130,8 +132,7 @@ export class ClientCreateReservationPage implements OnInit {
       this.evento.estado === 'Cancelado' ||
       this.evento.estado === 'Finalizado'
     ) {
-      this.error =
-        'Este evento no permite nuevas reservas.';
+      this.error = 'Este evento no permite nuevas reservas.';
       return;
     }
 
@@ -141,25 +142,34 @@ export class ClientCreateReservationPage implements OnInit {
       evento_codigo: this.evento.codigo,
       cantidad: this.cantidad
     })
-    .pipe(finalize(() => this.guardando = false))
-    .subscribe({
-      next: () => {
-        this.exito = 'Reserva realizada correctamente.';
-        this.router.navigate(['/client/reservations']);
-      },
-      error: (err: HttpErrorResponse) => {
-        if (err.status === 401) {
-          this.error =
-            'Debes iniciar sesión para reservar.';
-        } else if (err.status === 409) {
-          this.error =
-            'No hay suficientes entradas disponibles.';
-        } else {
-          this.error =
-            err.error?.error ||
-            'No fue posible registrar la reserva.';
+      .pipe(
+        finalize(() => {
+          this.guardando = false;
+        })
+      )
+      .subscribe({
+        next: () => {
+          this.exito = 'Reserva realizada correctamente.';
+          void this.router.navigate(['/client/reservations']);
+        },
+
+        error: (err: HttpErrorResponse) => {
+          if (err.status === 401) {
+            this.error = 'Debes iniciar sesión para reservar.';
+          } else if (err.status === 403) {
+            this.error = 'No tienes permiso para realizar esta reserva.';
+          } else if (err.status === 404) {
+            this.error = 'El servicio de reservas no está disponible o el recurso no existe.';
+          } else if (err.status === 409) {
+            this.error = 'No hay suficientes entradas disponibles.';
+          } else if (err.status === 0) {
+            this.error = 'No se pudo establecer conexión con el servidor.';
+          } else {
+            this.error =
+              err.error?.error ||
+              'No fue posible registrar la reserva.';
+          }
         }
-      }
-    });
+      });
   }
 }

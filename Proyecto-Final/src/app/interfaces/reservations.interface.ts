@@ -1,3 +1,4 @@
+
 import type { Event } from './event.interface';
 
 export type ReservationState =
@@ -14,11 +15,12 @@ export interface Reservation {
   estado: ReservationState;
   fecha_reserva: string;
 
-  // Información del cliente y del evento
+  // Información del cliente
   cliente_nombre?: string;
-  evento_nombre?: string;
+  cliente_email?: string;
 
-  // Información adicional del evento
+  // Información del evento
+  evento_nombre?: string;
   evento?: Event;
 }
 

@@ -1,21 +1,21 @@
 
-import {
-  Component,
-  inject,
-  OnInit
-} from '@angular/core';
-
 import { CommonModule } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Component, OnInit, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
-import { ReservationsService } from '../../services/reservations.service';
+import { forkJoin, of } from 'rxjs';
+import { catchError, finalize } from 'rxjs/operators';
 
 import {
   Reservation,
   ReservationState
 } from '../../interfaces/reservations.interface';
 
-// Datos preparados para la tabla
+import { ReservationsService } from '../../services/reservations.service';
+import { EventsService } from '../../services/events.service';
+import { Event } from '../../interfaces/event.interface';
+
 interface ReservaVista extends Reservation {
   nombreEvento: string;
 }
@@ -32,95 +32,110 @@ interface ReservaVista extends Reservation {
 })
 export class ClientReservationsPage implements OnInit {
 
-  private reservationsService =
-    inject(ReservationsService);
+  private readonly reservationsService = inject(ReservationsService);
+  private readonly eventsService = inject(EventsService);
 
-  // Reservas del cliente
   reservas: ReservaVista[] = [];
 
-  // Estado de carga
   cargando = false;
-
-  // Mensajes de error
   error = '';
 
-  // Total de reservas
   get totalReservas(): number {
     return this.reservas.length;
   }
 
-  // Cargar reservas al entrar a la pantalla
   ngOnInit(): void {
     this.cargarReservas();
   }
 
-  // Consultar reservas desde el backend
   cargarReservas(): void {
-
     this.cargando = true;
     this.error = '';
+    this.reservas = [];
 
-    this.reservationsService.getMine().subscribe({
+    this.reservationsService.getMine()
+      .pipe(
+        catchError((err: HttpErrorResponse) => {
 
-      next: (reservas: Reservation[]) => {
+          if (err.status === 401) {
+            this.error =
+              'Tu sesión no está autorizada. Inicia sesión nuevamente.';
 
-        this.reservas = reservas.map((reserva) => {
+          } else if (err.status === 403) {
+            this.error =
+              'No tienes permisos para consultar estas reservas.';
 
-          // El nombre del evento puede venir
-          // incluido en la respuesta del backend.
-          const evento = reserva.evento as
-            | { nombre?: string; titulo?: string }
-            | undefined;
+          } else if (err.status === 404) {
+            this.error =
+              'El servicio de reservas todavía no está disponible.';
 
-          return {
-            ...reserva,
+          } else if (err.status === 0) {
+            this.error =
+              'No se pudo conectar con el servidor.';
 
-            nombreEvento:
-              evento?.nombre ||
-              evento?.titulo ||
-              `Evento #${reserva.evento_codigo}`
-          };
-        });
+          } else {
+            this.error =
+              'No fue posible cargar tus reservas.';
+          }
 
-        this.cargando = false;
-      },
+          return of(null);
+        }),
+        finalize(() => {
+          this.cargando = false;
+        })
+      )
+      .subscribe((reservas: Reservation[] | null) => {
 
-      error: (error) => {
-
-        this.cargando = false;
-
-        if (error.status === 401) {
-          this.error =
-            'Tu sesión no está autorizada. Inicia sesión nuevamente.';
-        } else if (error.status === 403) {
-          this.error =
-            'No tienes permisos para consultar estas reservas.';
-        } else {
-          this.error =
-            'No se pudieron cargar tus reservas.';
+        if (reservas === null) {
+          return;
         }
 
-      }
+        if (reservas.length === 0) {
+          this.reservas = [];
+          return;
+        }
 
-    });
+        this.cargarNombresEventos(reservas);
+      });
   }
 
-  // Estilos según el estado de la reserva
+  private cargarNombresEventos(reservas: Reservation[]): void {
+
+    const consultas = reservas.map((reserva: Reservation) =>
+      this.eventsService.getById(reserva.evento_codigo).pipe(
+        catchError(() => of(null))
+      )
+    );
+
+    forkJoin(consultas)
+      .subscribe((eventos: (Event | null)[]) => {
+
+        this.reservas = reservas.map((reserva, index) => ({
+          ...reserva,
+
+          nombreEvento:
+            eventos[index]?.nombre ??
+            `Evento #${reserva.evento_codigo}`
+        }));
+
+      });
+  }
+
   claseEstado(estado: ReservationState): string {
 
     switch (estado) {
 
       case 'Confirmada':
-        return 'bg-success text-white';
+        return 'reservation-status--confirmed';
 
       case 'Pendiente':
-        return 'bg-warning text-dark';
+        return 'reservation-status--reserved';
 
       case 'Cancelada':
-        return 'bg-danger text-white';
+        return 'reservation-status--cancelled';
 
       default:
-        return 'bg-secondary text-white';
+        return '';
     }
   }
 }

@@ -21,13 +21,20 @@
     </a>
   </div>
 
+  <!-- Mensaje de éxito -->
+  <div *ngIf="mensajeExito"
+       class="alert alert-success"
+       role="status">
+    {{ mensajeExito }}
+  </div>
+
   <!-- Cargando -->
   <div *ngIf="cargando" class="alert alert-info">
     Consultando información del evento...
   </div>
 
   <!-- Error -->
-  <div *ngIf="!cargando && error"
+  <div *ngIf="error"
        class="alert alert-danger"
        role="alert">
     {{ error }}
@@ -39,7 +46,6 @@
     <section class="event-detail">
 
       <div class="event-detail__header">
-
         <div class="event-detail__title">
 
           <div class="event-detail__icon">
@@ -52,7 +58,6 @@
             </span>
 
             <h2>{{ evento.nombre }}</h2>
-
             <p>{{ evento.descripcion }}</p>
           </div>
         </div>
@@ -71,7 +76,6 @@
             <i class="bi bi-geo-alt"></i>
             Lugar
           </span>
-
           <strong>{{ evento.teatro }}</strong>
         </div>
 
@@ -80,7 +84,6 @@
             <i class="bi bi-building"></i>
             Ciudad
           </span>
-
           <strong>{{ evento.ciudad }}</strong>
         </div>
 
@@ -89,7 +92,6 @@
             <i class="bi bi-calendar-event"></i>
             Fecha de inicio
           </span>
-
           <strong>
             {{ evento.fecha_inicio | date:'dd/MM/yyyy - h:mm a':'':'es-CO' }}
           </strong>
@@ -100,7 +102,6 @@
             <i class="bi bi-calendar-check"></i>
             Fecha de finalización
           </span>
-
           <strong>
             {{ evento.fecha_fin | date:'dd/MM/yyyy - h:mm a':'':'es-CO' }}
           </strong>
@@ -111,7 +112,6 @@
             <i class="bi bi-cash"></i>
             Precio por entrada
           </span>
-
           <strong>
             $ {{ evento.precio | number:'1.0-0':'es-CO' }} COP
           </strong>
@@ -122,7 +122,6 @@
             <i class="bi bi-people"></i>
             Capacidad
           </span>
-
           <strong>{{ evento.capacidad }} personas</strong>
         </div>
 
@@ -130,7 +129,6 @@
 
       <div class="event-detail__description">
         <span class="detail-label">Descripción</span>
-
         <p>{{ evento.descripcion }}</p>
 
         <p *ngIf="evento.observaciones">
@@ -151,7 +149,7 @@
 
         <div>
           <span>Total de reservas</span>
-          <strong>—</strong>
+          <strong>{{ totalReservas }}</strong>
         </div>
       </div>
 
@@ -162,7 +160,7 @@
 
         <div>
           <span>Entradas reservadas</span>
-          <strong>—</strong>
+          <strong>{{ entradasReservadas }}</strong>
         </div>
       </div>
 
@@ -173,7 +171,9 @@
 
         <div>
           <span>Valor de reservas</span>
-          <strong>—</strong>
+          <strong>
+            {{ valorReservas | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}
+          </strong>
         </div>
       </div>
 
@@ -185,26 +185,14 @@
       <div class="section-header">
         <div>
           <h2>Reservas registradas</h2>
-
           <p>
             Consulta el estado y la información de cada reserva.
           </p>
         </div>
 
         <span class="reservations-count">
-          Pendiente de consulta
+          {{ totalReservas }} reservas
         </span>
-      </div>
-
-      <div *ngIf="!reservasDisponibles"
-           class="alert alert-warning m-3"
-           role="status">
-
-        La consulta de reservas de este evento todavía
-        no está disponible.
-
-        Es necesario integrar el backend de reservas
-        y los permisos de acceso del agente.
       </div>
 
       <div class="table-responsive">
@@ -213,18 +201,109 @@
           <thead>
             <tr>
               <th>Código</th>
+              <th>Cliente</th>
+              <th>Correo electrónico</th>
               <th>Fecha de reserva</th>
               <th>Entradas</th>
               <th>Valor total</th>
               <th>Estado</th>
-              <th>Observaciones</th>
               <th>Acciones</th>
             </tr>
           </thead>
 
           <tbody>
-            <!-- Las filas se cargarán desde la API
-                 cuando exista el endpoint autorizado. -->
+
+            <tr *ngFor="let reserva of reservas">
+
+              <td>
+                <strong>#{{ reserva.codigo }}</strong>
+              </td>
+
+              <td>
+                {{ reserva.cliente_nombre || 'No disponible' }}
+              </td>
+
+              <td>
+                {{ reserva.cliente_email || 'No disponible' }}
+              </td>
+
+              <td>
+                {{ reserva.fecha_reserva | date:'dd/MM/yyyy - h:mm a':'':'es-CO' }}
+              </td>
+
+              <td>
+                {{ reserva.cantidad }}
+              </td>
+
+              <td>
+                {{ reserva.total | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}
+              </td>
+
+              <!-- Estado -->
+              <td>
+                <span
+                  class="status-badge"
+                  [ngClass]="claseEstadoReserva(reserva.estado)">
+                  {{ reserva.estado }}
+                </span>
+              </td>
+
+              <!-- Acciones -->
+              <td>
+
+                <ng-container
+                  *ngIf="reserva.estado === 'Pendiente'; else estadoFinal">
+
+                  <div class="d-flex gap-2">
+
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-success"
+                      [disabled]="procesandoCodigo !== null"
+                      (click)="actualizarEstado(reserva, 'Confirmada')">
+
+                      <span *ngIf="procesandoCodigo === reserva.codigo">
+                        Procesando...
+                      </span>
+
+                      <span *ngIf="procesandoCodigo !== reserva.codigo">
+                        Confirmar
+                      </span>
+
+                    </button>
+
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-outline-danger"
+                      [disabled]="procesandoCodigo !== null"
+                      (click)="actualizarEstado(reserva, 'Cancelada')">
+
+                      Cancelar
+
+                    </button>
+
+                  </div>
+
+                </ng-container>
+
+                <ng-template #estadoFinal>
+                  <span class="text-muted">
+                    Sin acciones
+                  </span>
+                </ng-template>
+
+              </td>
+
+            </tr>
+
+            <!-- Sin reservas -->
+            <tr *ngIf="reservas.length === 0">
+              <td colspan="8" class="text-center py-4">
+                <i class="bi bi-inbox fs-3 d-block mb-2"></i>
+                Este evento todavía no tiene reservas registradas.
+              </td>
+            </tr>
+
           </tbody>
 
         </table>
@@ -232,7 +311,7 @@
 
       <div class="table-footer">
         <span>
-          Información de reservas pendiente de integración
+          Mostrando {{ reservas.length }} reservas registradas.
         </span>
       </div>
 

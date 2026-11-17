@@ -61,6 +61,17 @@ export class ReservationsService {
     );
   }
 
+  // CONSULTAR RESERVAS DE LOS EVENTOS DEL AGENTE
+  getByAgent(): Observable<Reservation[]> {
+
+    return this.http.get<Reservation[]>(
+      `${this.apiUrl}/agent`,
+      {
+        headers: this.getHeaders()
+      }
+    );
+  }
+
   // CONSULTAR UNA RESERVA
   getById(codigo: number): Observable<Reservation> {
 

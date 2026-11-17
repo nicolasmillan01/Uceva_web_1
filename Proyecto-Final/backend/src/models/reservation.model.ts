@@ -17,21 +17,22 @@ export interface ReservationInput {
 export class ReservationModel {
   constructor(private readonly db: DatabaseSync) {}
 
-  // Consultar todas las reservas con nombre del cliente y evento.
-findAll(): Reservation[] {
-  return this.db.prepare(`
-    SELECT
-      r.*,
-      u.nombre AS cliente_nombre,
-      e.nombre AS evento_nombre
-    FROM reservations r
-    LEFT JOIN users u
-      ON r.usuario_id = u.id
-    LEFT JOIN events e
-      ON r.evento_codigo = e.codigo
-    ORDER BY r.fecha_reserva DESC, r.codigo DESC
-  `).all() as unknown as Reservation[];
-}
+  // Consultar todas las reservas.
+  findAll(): Reservation[] {
+    return this.db.prepare(`
+      SELECT
+        r.*,
+        u.nombre AS cliente_nombre,
+        u.email AS cliente_email,
+        e.nombre AS evento_nombre
+      FROM reservations r
+      LEFT JOIN users u
+        ON r.usuario_id = u.id
+      LEFT JOIN events e
+        ON r.evento_codigo = e.codigo
+      ORDER BY r.fecha_reserva DESC, r.codigo DESC
+    `).all() as unknown as Reservation[];
+  }
 
   // Consultar una reserva por código.
   findById(codigo: number): Reservation | undefined {
@@ -39,6 +40,7 @@ findAll(): Reservation[] {
       SELECT
         r.*,
         u.nombre AS cliente_nombre,
+        u.email AS cliente_email,
         e.nombre AS evento_nombre
       FROM reservations r
       LEFT JOIN users u
@@ -55,6 +57,7 @@ findAll(): Reservation[] {
       SELECT
         r.*,
         u.nombre AS cliente_nombre,
+        u.email AS cliente_email,
         e.nombre AS evento_nombre
       FROM reservations r
       LEFT JOIN users u
@@ -72,6 +75,7 @@ findAll(): Reservation[] {
       SELECT
         r.*,
         u.nombre AS cliente_nombre,
+        u.email AS cliente_email,
         e.nombre AS evento_nombre
       FROM reservations r
       LEFT JOIN users u
@@ -81,6 +85,24 @@ findAll(): Reservation[] {
       WHERE r.evento_codigo = ?
       ORDER BY r.fecha_reserva DESC
     `).all(eventoCodigo) as unknown as Reservation[];
+  }
+
+  // Consultar reservas de los eventos creados por un agente.
+  findByAgent(agentId: number): Reservation[] {
+    return this.db.prepare(`
+      SELECT
+        r.*,
+        u.nombre AS cliente_nombre,
+        u.email AS cliente_email,
+        e.nombre AS evento_nombre
+      FROM reservations r
+      INNER JOIN events e
+        ON r.evento_codigo = e.codigo
+      INNER JOIN users u
+        ON r.usuario_id = u.id
+      WHERE e.creado_por = ?
+      ORDER BY r.fecha_reserva DESC
+    `).all(agentId) as unknown as Reservation[];
   }
 
   // Crear reserva.

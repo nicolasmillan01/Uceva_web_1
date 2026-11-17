@@ -1,9 +1,7 @@
 
 import type { DatabaseSync } from 'node:sqlite';
 
-import {
-  ReservationModel
-} from '../models/reservation.model.js';
+import { ReservationModel } from '../models/reservation.model.js';
 
 import type {
   Reservation,
@@ -39,6 +37,7 @@ export class ReservationService {
     }
   }
 
+  // Obtener información del evento.
   private obtenerEvento(codigo: number): {
     capacidad: number;
     precio: number;
@@ -63,6 +62,7 @@ export class ReservationService {
     return evento;
   }
 
+  // Calcular entradas ocupadas.
   private cuposReservados(
     eventoCodigo: number,
     excluirReserva?: number
@@ -81,6 +81,7 @@ export class ReservationService {
     return resultado.total;
   }
 
+  // Comprobar disponibilidad y calcular el valor.
   private comprobarDisponibilidad(
     eventoCodigo: number,
     cantidad: number,
@@ -115,6 +116,7 @@ export class ReservationService {
     return evento.precio * cantidad;
   }
 
+  // Ejecutar operaciones dentro de una transacción.
   private transaccion<T>(operacion: () => T): T {
     this.db.exec('BEGIN IMMEDIATE');
 
@@ -128,10 +130,12 @@ export class ReservationService {
     }
   }
 
+  // Consultar todas las reservas.
   getAll(): Reservation[] {
     return this.model.findAll();
   }
 
+  // Consultar una reserva.
   getById(codigo: number): Reservation {
     this.validarId(codigo);
 
@@ -144,16 +148,63 @@ export class ReservationService {
     return reserva;
   }
 
+  // Consultar reservas de un cliente.
   getByUser(usuarioId: number): Reservation[] {
     this.validarId(usuarioId);
     return this.model.findByUser(usuarioId);
   }
 
+  // Consultar reservas de un evento.
   getByEvent(eventoCodigo: number): Reservation[] {
     this.validarId(eventoCodigo);
     return this.model.findByEvent(eventoCodigo);
   }
 
+  // Consultar reservas de los eventos de un agente.
+  getByAgent(agentId: number): Reservation[] {
+    this.validarId(agentId);
+    return this.model.findByAgent(agentId);
+  }
+
+  // Verificar que un evento pertenece al agente.
+  isEventOwnedByAgent(
+    agentId: number,
+    eventoCodigo: number
+  ): boolean {
+    this.validarId(agentId);
+    this.validarId(eventoCodigo);
+
+    const resultado = this.db.prepare(`
+      SELECT 1
+      FROM events
+      WHERE codigo = ?
+        AND creado_por = ?
+    `).get(eventoCodigo, agentId);
+
+    return Boolean(resultado);
+  }
+
+  // Verificar que una reserva pertenece a un evento del agente.
+  agentOwnsReservation(
+    reservaCodigo: number,
+    agentId: number
+  ): boolean {
+    this.validarId(reservaCodigo);
+    this.validarId(agentId);
+
+    const resultado = this.db.prepare(`
+      SELECT 1
+      FROM reservations r
+      INNER JOIN events e
+        ON r.evento_codigo = e.codigo
+      WHERE r.codigo = ?
+        AND e.creado_por = ?
+    `).get(reservaCodigo, agentId);
+
+    return Boolean(resultado);
+  }
+
+  // Crear una reserva.
   create(
     usuarioId: number,
     eventoCodigo: number,
@@ -182,16 +233,17 @@ export class ReservationService {
         cantidad
       );
 
-    return this.model.create({
-      usuario_id: usuarioId,
-      evento_codigo: eventoCodigo,
-      cantidad,
-      total,
-      estado: 'Pendiente'
-    });
+      return this.model.create({
+        usuario_id: usuarioId,
+        evento_codigo: eventoCodigo,
+        cantidad,
+        total,
+        estado: 'Pendiente'
+      });
     });
   }
 
+  // Actualizar una reserva.
   update(
     codigo: number,
     cantidad: number,
@@ -203,13 +255,16 @@ export class ReservationService {
     if (
       !['Pendiente', 'Confirmada', 'Cancelada'].includes(estado)
     ) {
-      throw this.error('Estado de reserva inválido', 400);
+      throw this.error(
+        'Estado de reserva inválido',
+        400
+      );
     }
 
     return this.transaccion(() => {
       const reserva = this.getById(codigo);
 
-      let total = reserva.total;
+      let total: number;
 
       if (estado === 'Confirmada') {
         total = this.comprobarDisponibilidad(
@@ -232,13 +287,17 @@ export class ReservationService {
       });
 
       if (!actualizada) {
-        throw this.error('Reserva no encontrada', 404);
+        throw this.error(
+          'Reserva no encontrada',
+          404
+        );
       }
 
       return actualizada;
     });
   }
 
+  // Eliminar una reserva.
   delete(codigo: number): boolean {
     this.validarId(codigo);
 
@@ -246,7 +305,10 @@ export class ReservationService {
       const eliminada = this.model.delete(codigo);
 
       if (!eliminada) {
-        throw this.error('Reserva no encontrada', 404);
+        throw this.error(
+          'Reserva no encontrada',
+          404
+        );
       }
 
       return eliminada;

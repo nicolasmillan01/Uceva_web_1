@@ -2,7 +2,9 @@
 import { Router } from 'express';
 import type { DatabaseSync } from 'node:sqlite';
 
-import { ReservationController } from '../controllers/reservation.controller.js';
+import {
+  ReservationController
+} from '../controllers/reservation.controller.js';
 
 export function createReservationRoutes(
   db: DatabaseSync
@@ -11,22 +13,28 @@ export function createReservationRoutes(
   const router = Router();
   const controller = new ReservationController(db);
 
-  // Consultar reservas del usuario autenticado.
+  // Consultar reservas del cliente autenticado.
   router.get(
     '/mine',
     controller.byUser
   );
 
-  // Consultar todas las reservas.
+  // Consultar todas las reservas de los eventos del agente.
+  router.get(
+    '/agent',
+    controller.byAgent
+  );
+
+  // Consultar reservas de un evento específico del agente.
+  router.get(
+    '/agent/event/:eventoCodigo',
+    controller.byAgentEvent
+  );
+
+  // Consultar todas las reservas (administrador).
   router.get(
     '/',
     controller.all
-  );
-
-  // Consultar una reserva por su código.
-  router.get(
-    '/:id',
-    controller.byId
   );
 
   // Crear una reserva.
@@ -35,13 +43,19 @@ export function createReservationRoutes(
     controller.create
   );
 
+  // Consultar una reserva por código.
+  router.get(
+    '/:id',
+    controller.byId
+  );
+
   // Actualizar una reserva.
   router.put(
     '/:id',
     controller.update
   );
 
-  // Eliminar una reserva.
+  // Eliminar una reserva (administrador).
   router.delete(
     '/:id',
     controller.delete

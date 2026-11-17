@@ -20,6 +20,8 @@ import { createReservationRoutes } from '../dist/routes/reservation.routes.js';
 
 import { db } from './config/database.js';
 
+import adminReportsRoutes from './routes/admin-reports.routes.js';
+
 const app = express();
 
 // Permitir conexiones desde Angular
@@ -52,6 +54,9 @@ app.use('/api/auth', authRoutes);
 
 // Rutas de administración de usuarios
 app.use('/api/users', userRoutes);
+
+// Reportes generales del administrador
+app.use('/api/admin/reports', adminReportsRoutes);
 
 // Reservas: requieren autenticación JWT
 app.use(

@@ -73,13 +73,26 @@ export class NavbarComponent {
   ];
 
   // NAVEGACIÓN DEL ADMINISTRADOR
+
+  // NAVEGACIÓN DEL ADMINISTRADOR
   adminConfig: NavbarConfig[] = [
     {
       url: '/admin/users',
       label: 'Usuarios',
       icon: 'people'
+    },
+    {
+      url: '/admin/reservations',
+      label: 'Reservas',
+      icon: 'ticket-perforated'
+    },
+    {
+      url: '/admin/reports',
+      label: 'Reportes',
+      icon: 'bar-chart-line'
     }
   ];
+
 
   // OPCIONES SEGÚN EL ROL
   navbarConfig: NavbarConfig[] = [];

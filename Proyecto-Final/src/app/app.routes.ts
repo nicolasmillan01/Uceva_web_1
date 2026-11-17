@@ -126,40 +126,46 @@ export const routes: Routes = [
   // ========================================
   // ADMINISTRADORES
   // ========================================
-  {
-    path: 'admin',
+ {
+  path: 'admin',
 
-    canActivate: [
-      authGuard,
-      roleGuard(['administrador'])
-    ],
+  canActivate: [
+    authGuard,
+    roleGuard(['administrador'])
+  ],
 
-    canActivateChild: [
-      authGuard,
-      roleGuard(['administrador'])
-    ],
+  canActivateChild: [
+    authGuard,
+    roleGuard(['administrador'])
+  ],
 
-    children: [
-      {
-        path: '',
-        component: AdminPage
-      },
-      {
-        path: 'users',
-        loadComponent: () =>
-          import(
-            './pages/admin/users/admin-users/admin-users'
-          ).then(m => m.AdminUsers)
-      },
-      {
-        path: 'reservations',
-        loadComponent: () =>
-          import(
-            './pages/admin/admin-reservations/admin-reservations'
-          ).then(m => m.AdminReservations)
-      }
-    ]
-  },
+  children: [
+    {
+      path: '',
+      component: AdminPage
+    },
+    {
+      path: 'users',
+      loadComponent: () =>
+        import('./pages/admin/users/admin-users/admin-users')
+          .then(m => m.AdminUsers)
+    },
+    {
+      path: 'reservations',
+      loadComponent: () =>
+        import('./pages/admin/admin-reservations/admin-reservations')
+          .then(m => m.AdminReservations)
+    },
+    {
+      path: 'reports',
+      loadComponent: () =>
+        import('./pages/admin/admin-reports/admin-reports')
+          .then(m => m.AdminReports)
+    }
+  ]
+},
+
+  
 
   // ========================================
   // REDIRECCIÓN INICIAL

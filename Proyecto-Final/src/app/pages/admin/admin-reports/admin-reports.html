@@ -1,0 +1,452 @@
+
+<app-navbar />
+
+<div class="container py-5">
+
+  <!-- ENCABEZADO -->
+  <div class="page-header mb-4">
+
+    <div>
+      <span class="text-primary fw-semibold">
+        ADMINISTRACIÓN
+      </span>
+
+      <h2 class="fw-bold mt-2">
+        Reportes generales
+      </h2>
+
+      <p class="text-muted">
+        Estadísticas generales de usuarios, eventos y reservas
+        registradas en EventApp.
+      </p>
+    </div>
+
+    <button
+      class="btn btn-outline-primary"
+      type="button"
+      (click)="cargarReportes()"
+      [disabled]="cargando">
+
+      <i class="bi bi-arrow-clockwise me-2"></i>
+      Actualizar
+    </button>
+
+  </div>
+
+  <!-- ERROR -->
+  @if (error) {
+    <div class="alert alert-danger">
+      {{ error }}
+    </div>
+  }
+
+  <!-- CARGANDO -->
+  @if (cargando && !reportes) {
+    <div class="text-center py-5">
+      <div class="spinner-border text-primary"></div>
+      <p class="text-muted mt-3">
+        Consultando estadísticas...
+      </p>
+    </div>
+  }
+
+  @if (reportes; as r) {
+
+    <!-- INDICADORES PRINCIPALES -->
+    <div class="row g-3 mb-4">
+
+      <div class="col-md-6 col-xl-3">
+        <div class="report-card">
+          <div class="report-icon blue">
+            <i class="bi bi-people"></i>
+          </div>
+
+          <span>Usuarios registrados</span>
+
+          <h3>{{ r.usuarios.total }}</h3>
+
+          <small class="text-muted">
+            Clientes, agentes y administradores
+          </small>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-xl-3">
+        <div class="report-card">
+          <div class="report-icon purple">
+            <i class="bi bi-calendar-event"></i>
+          </div>
+
+          <span>Eventos registrados</span>
+
+          <h3>{{ r.eventos.total }}</h3>
+
+          <small class="text-muted">
+            Eventos de la plataforma
+          </small>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-xl-3">
+        <div class="report-card">
+          <div class="report-icon green">
+            <i class="bi bi-ticket-perforated"></i>
+          </div>
+
+          <span>Reservas totales</span>
+
+          <h3>{{ r.reservas.total }}</h3>
+
+          <small class="text-muted">
+            Solicitudes registradas
+          </small>
+        </div>
+      </div>
+
+      <div class="col-md-6 col-xl-3">
+        <div class="report-card">
+          <div class="report-icon orange">
+            <i class="bi bi-cash-stack"></i>
+          </div>
+
+          <span>Ingresos confirmados</span>
+
+          <h3>
+            {{ r.reservas.ingresosConfirmados
+              | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}
+          </h3>
+
+          <small class="text-muted">
+            Reservas confirmadas
+          </small>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- USUARIOS Y EVENTOS -->
+    <div class="row g-4 mb-4">
+
+      <!-- USUARIOS -->
+      <div class="col-lg-6">
+
+        <div class="report-section h-100">
+
+          <h4>Usuarios por rol</h4>
+
+          <p class="text-muted">
+            Distribución de usuarios registrados.
+          </p>
+
+          <div class="stat-row">
+            <div class="stat-label">
+              <span>Clientes</span>
+              <strong>{{ r.usuarios.clientes }}</strong>
+            </div>
+
+            <div class="progress">
+              <div
+                class="progress-bar bg-primary"
+                [style.width.%]="porcentaje(
+                  r.usuarios.clientes,
+                  r.usuarios.total
+                )">
+              </div>
+            </div>
+          </div>
+
+          <div class="stat-row">
+            <div class="stat-label">
+              <span>Agentes</span>
+              <strong>{{ r.usuarios.agentes }}</strong>
+            </div>
+
+            <div class="progress">
+              <div
+                class="progress-bar bg-success"
+                [style.width.%]="porcentaje(
+                  r.usuarios.agentes,
+                  r.usuarios.total
+                )">
+              </div>
+            </div>
+          </div>
+
+          <div class="stat-row">
+            <div class="stat-label">
+              <span>Administradores</span>
+              <strong>{{ r.usuarios.administradores }}</strong>
+            </div>
+
+            <div class="progress">
+              <div
+                class="progress-bar bg-warning"
+                [style.width.%]="porcentaje(
+                  r.usuarios.administradores,
+                  r.usuarios.total
+                )">
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- EVENTOS -->
+      <div class="col-lg-6">
+
+        <div class="report-section h-100">
+
+          <h4>Eventos por estado</h4>
+
+          <p class="text-muted">
+            Estado actual de los eventos registrados.
+          </p>
+
+          <div class="stat-row">
+            <div class="stat-label">
+              <span>Programados</span>
+              <strong>{{ r.eventos.programados }}</strong>
+            </div>
+
+            <div class="progress">
+              <div
+                class="progress-bar bg-primary"
+                [style.width.%]="porcentaje(
+                  r.eventos.programados,
+                  r.eventos.total
+                )">
+              </div>
+            </div>
+          </div>
+
+          <div class="stat-row">
+            <div class="stat-label">
+              <span>En boletería</span>
+              <strong>{{ r.eventos.enBoleteria }}</strong>
+            </div>
+
+            <div class="progress">
+              <div
+                class="progress-bar bg-info"
+                [style.width.%]="porcentaje(
+                  r.eventos.enBoleteria,
+                  r.eventos.total
+                )">
+              </div>
+            </div>
+          </div>
+
+          <div class="stat-row">
+            <div class="stat-label">
+              <span>En vivo</span>
+              <strong>{{ r.eventos.enVivo }}</strong>
+            </div>
+
+            <div class="progress">
+              <div
+                class="progress-bar bg-success"
+                [style.width.%]="porcentaje(
+                  r.eventos.enVivo,
+                  r.eventos.total
+                )">
+              </div>
+            </div>
+          </div>
+
+          <div class="stat-row">
+            <div class="stat-label">
+              <span>Finalizados</span>
+              <strong>{{ r.eventos.finalizados }}</strong>
+            </div>
+
+            <div class="progress">
+              <div
+                class="progress-bar bg-secondary"
+                [style.width.%]="porcentaje(
+                  r.eventos.finalizados,
+                  r.eventos.total
+                )">
+              </div>
+            </div>
+          </div>
+
+          <div class="stat-row">
+            <div class="stat-label">
+              <span>Cancelados</span>
+              <strong>{{ r.eventos.cancelados }}</strong>
+            </div>
+
+            <div class="progress">
+              <div
+                class="progress-bar bg-danger"
+                [style.width.%]="porcentaje(
+                  r.eventos.cancelados,
+                  r.eventos.total
+                )">
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- RESERVAS -->
+    <div class="report-section mb-4">
+
+      <h4>Estadísticas de reservas</h4>
+
+      <p class="text-muted">
+        Resumen de solicitudes y entradas registradas.
+      </p>
+
+      <div class="row g-3">
+
+        <div class="col-md-4">
+          <div class="reservation-stat">
+            <span>Pendientes</span>
+            <h3>{{ r.reservas.pendientes }}</h3>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="reservation-stat">
+            <span>Confirmadas</span>
+            <h3>{{ r.reservas.confirmadas }}</h3>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="reservation-stat">
+            <span>Canceladas</span>
+            <h3>{{ r.reservas.canceladas }}</h3>
+          </div>
+        </div>
+
+      </div>
+
+      <hr>
+
+      <div class="row g-3">
+
+        <div class="col-md-4">
+          <div class="detail-stat">
+            <span>Entradas activas</span>
+            <strong>{{ r.reservas.entradasActivas }}</strong>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="detail-stat">
+            <span>Entradas pendientes</span>
+            <strong>{{ r.reservas.entradasPendientes }}</strong>
+          </div>
+        </div>
+
+        <div class="col-md-4">
+          <div class="detail-stat">
+            <span>Entradas confirmadas</span>
+            <strong>{{ r.reservas.entradasConfirmadas }}</strong>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- RANKING DE EVENTOS -->
+    <div class="report-section">
+
+      <h4>Eventos con más reservas</h4>
+
+      <p class="text-muted">
+        Clasificación de los eventos según sus solicitudes.
+      </p>
+
+      @if (r.eventosMasReservados.length > 0) {
+
+        <div class="table-responsive">
+
+          <table class="table align-middle">
+
+            <thead>
+              <tr>
+                <th>Evento</th>
+                <th>Ciudad</th>
+                <th>Estado</th>
+                <th>Reservas</th>
+                <th>Entradas confirmadas</th>
+                <th>Ingresos</th>
+              </tr>
+            </thead>
+
+            <tbody>
+
+              @for (
+                evento of r.eventosMasReservados;
+                track evento.codigo
+              ) {
+
+                <tr>
+
+                  <td>
+                    <strong>{{ evento.nombre }}</strong>
+                    <small class="d-block text-muted">
+                      {{ evento.teatro }}
+                    </small>
+                  </td>
+
+                  <td>{{ evento.ciudad }}</td>
+
+                  <td>
+                    <span class="badge bg-light text-dark">
+                      {{ evento.estado }}
+                    </span>
+                  </td>
+
+                  <td>{{ evento.totalReservas }}</td>
+
+                  <td>
+                    {{ evento.entradasConfirmadas }}
+                  </td>
+
+                  <td class="fw-semibold">
+                    {{ evento.ingresos
+                      | currency:'COP':'symbol-narrow':'1.0-0':'es-CO' }}
+                  </td>
+
+                </tr>
+
+              }
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+      } @else {
+
+        <div class="text-center py-4">
+          <p class="text-muted">
+            No hay eventos registrados.
+          </p>
+        </div>
+
+      }
+
+    </div>
+
+    <div class="text-muted text-end mt-3">
+      <small>
+        Información obtenida directamente de la base de datos.
+      </small>
+    </div>
+
+  }
+
+</div>

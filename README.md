@@ -6,6 +6,10 @@ Repositorio de talleres de la asignatura **Programación en Ambiente Web I**.
 
 Nicolas Millan Rodriguez - 230222012
 
+## Proyecto-Final (EventAPP)
+
+Esa es la carpeta del trabajo final del proyecto.
+
 ## Estructura del proyecto
 
 ```
